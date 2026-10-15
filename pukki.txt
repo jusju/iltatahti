@@ -1,0 +1,23 @@
+# Moottoripukki (pukki.py) — säädettävät arvot.
+# Muuta arvoa, tallenna ja aja "Iltatähti: synkronoi" (sync_all.py):
+# pukki, 3D-malli ja rakennuspiirustus päivittyvät, tulostettava pukki
+# kirjoitetaan tiedostoihin step/pukki.step ja step/pukki.stl.
+#
+# Kulmat asteina. Laakeriputki kääntyy etupäänsä (potkurin puoleisen pään)
+# ympäri, joten potkurin paikka pysyy samana.
+
+# sivuveto: + = vasemmalle, - = oikealle (lentäjän suunnasta katsottuna)
+sivuveto = 2.0
+
+# alas/ylös-veto: + = alas, - = ylös
+alaveto = 0.0
+
+# laakerireiän halkaisija, mm (potkurin akseli 1,0 mm; tulostimen mukaan esim. 1,1)
+laakerireika = 1.0
+
+# runkotikun korkeus nokassa, mm (tikku 4 mm leveä). Pukin tasku ja koko 3D-malli
+# seuraavat tätä; laakeri pysyy 9,8 mm tikun alapinnan alapuolella.
+tikun_korkeus = 7.0
+
+# taskun korkeus = tikun_korkeus + taskun_vara (pukki-v6: 9 mm tikku, 10 mm tasku)
+taskun_vara = 1.0
