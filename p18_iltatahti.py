@@ -174,6 +174,9 @@ WEDGE_OVERHANG = 5.0
 WEDGE_MIN_H = 3.0  # height at the rear end
 WEDGE_ANGLE = 2.0
 WEDGE_T = STICK_W  # spanwise width = gap between the legs
+# notches across the wedge top for the rubber bands that hold the wing: width, depth and
+# gap outside the wing's LE / TE (measured from the wing over the wedge)
+WEDGE_BAND_NOTCH = (1.0, 1.0, 0.2)
 WING_INCIDENCE = WEDGE_ANGLE
 
 # fuselage stations
@@ -696,6 +699,31 @@ def wing_wedge(chord: float) -> FlatPart:
     return FlatPart("wing_wedge", prof, WEDGE_T, plane, color=BALSA_4MM)
 
 
+def wedge_with_notches(chord: float, wing_solids) -> FlatPart:
+    """The wedge with a WEDGE_BAND_NOTCH notch just in front of the wing's LE and just
+    behind its TE: the rubber bands holding the wing sit in them."""
+    x0, x1 = wedge_x(chord)
+    length = x1 - x0
+    slope = tan(radians(WEDGE_ANGLE))
+    h_front = WEDGE_MIN_H + length * slope
+    band = Location(((x0 + x1) / 2, 0, 20)) * Box(length + 20, WEDGE_T, 60)
+    boxes = []
+    for s in wing_solids:
+        if "_leg_" in (s.label or ""):
+            continue
+        c = s & band
+        if c is not None and c.volume > 1e-6:
+            boxes.append(c.bounding_box())
+    front, rear = min(b.min.X for b in boxes), max(b.max.X for b in boxes)
+    w, d, g = WEDGE_BAND_NOTCH
+    poly = Polygon([(0, 0), (length, 0), (length, WEDGE_MIN_H), (0, h_front)])
+    for ua, ub in ((front - g - w - x0, front - g - x0), (rear + g - x0, rear + g + w - x0)):
+        top_a, top_b = h_front - ua * slope, h_front - ub * slope
+        poly = poly.difference(Polygon([(ua, top_a - d), (ub, top_b - d), (ub, h_front + 1), (ua, h_front + 1)]))
+    plane = Plane(origin=(x0, 0, 0), x_dir=(1, 0, 0), z_dir=(0, -1, 0))
+    return FlatPart("wing_wedge", poly_face(poly), WEDGE_T, plane, color=BALSA_4MM)
+
+
 def motor_stick():
     """STICK_H x STICK_LEN rectangle from the nose, the rear part tapers to STICK_H_TAIL."""
     prof = polygon_profile([(0, -STICK_H), (STICK_LEN - STICK_TAPER_LEN, -STICK_H),
@@ -761,6 +789,10 @@ def build():
     }
     apply_overrides([p for items in groups.values() for p, _ in items])
     solids = {g: [p.solid(loc) for p, loc in items] for g, items in groups.items()}
+    if not (OVERRIDE_DIR / "wing_wedge.json").exists():  # rubber band notches (not over a laser edit)
+        wedge = wedge_with_notches(chord, solids["wing"])
+        groups["wedge"] = [(wedge, Location())]
+        solids["wedge"] = [wedge.solid()]
     solids["hardware"] = hardware()
     flat = [p for items in groups.values() for p, _ in items]
     info = dict(spans=spans, chord=chord, dihedral=dihedral, stab_chord=stab_chord)

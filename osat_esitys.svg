@@ -104,7 +104,7 @@
 <path d="M 18.00,337.34 L 435.00,337.34 L 515.00,334.34 L 515.00,330.34 L 18.00,330.34 L 18.00,337.34 Z" style="fill:hsl(4,75%,38%);fill-opacity:0.15;stroke:hsl(4,75%,38%);stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline"/>
 <text class="n" x="14" y="335.34" text-anchor="end" fill="hsl(4,75%,38%)">34</text>
 <text class="t" x="519.0" y="334.84">motor_stick — 497.0 × 7.0 mm, 4 mm balsa</text>
-<path d="M 18.00,347.48 L 107.94,347.48 L 107.94,344.48 L 18.00,341.34 L 18.00,347.48 Z" style="fill:hsl(227,75%,38%);fill-opacity:0.15;stroke:hsl(227,75%,38%);stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline"/>
+<path d="M 107.94,347.48 L 18.00,347.48 L 18.00,341.34 L 21.08,341.45 L 21.08,342.45 L 22.08,342.48 L 22.08,341.48 L 104.00,344.35 L 104.00,345.35 L 105.00,345.38 L 105.00,344.38 L 107.94,344.48 L 107.94,347.48 Z" style="fill:hsl(227,75%,38%);fill-opacity:0.15;stroke:hsl(227,75%,38%);stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline"/>
 <text class="n" x="14" y="345.91" text-anchor="end" fill="hsl(227,75%,38%)">35</text>
 <text class="t" x="111.9" y="345.41">wing_wedge — 89.9 × 6.1 mm, 4 mm balsa</text>
 </svg>
