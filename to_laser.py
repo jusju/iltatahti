@@ -134,8 +134,9 @@ def orientations(poly: Polygon) -> list[Polygon]:
 # Nesting: bottom-left fill
 # --------------------------------------------------------------------------
 class Sheet:
-    def __init__(self, edge=EDGE, gap=GAP):
+    def __init__(self, edge=EDGE, gap=GAP, x_step=None):
         self.edge, self.gap = edge, gap
+        self.x_step = x_step  # also try x positions on this grid (fills holes between odd shapes)
         self.placed: list[tuple[int, str, Polygon]] = []
         self.blocked = None  # union of placed parts grown by the gap
 
@@ -157,6 +158,9 @@ class Sheet:
         for _, _, p in self.placed:
             b = p.bounds
             xs |= {b[0], b[2] + self.gap + 0.05}  # just clear of the gap, touching counts as a collision
+        if self.x_step and self.placed:
+            right = max(p.bounds[2] for _, _, p in self.placed)
+            xs |= {self.edge + k * self.x_step for k in range(int((right - self.edge) / self.x_step) + 1)}
         best = None
         for x in sorted(xs):
             if x + w > SHEET_L - (0.0 if full_length(poly) else self.edge) + 1e-9:
@@ -189,7 +193,7 @@ class Sheet:
         return x
 
 
-def nest(items, single_sheet=False, edge=EDGE, gap=GAP):
+def nest(items, single_sheet=False, edge=EDGE, gap=GAP, x_step=None):
     """items: [(num, name, polygon)] -> list of Sheet."""
     sheets: list[Sheet] = []
     items = sorted(items, key=lambda it: (-it[2].bounds[2], -it[2].area))
@@ -206,7 +210,7 @@ def nest(items, single_sheet=False, edge=EDGE, gap=GAP):
         else:
             if single_sheet and sheets:
                 raise ValueError(f"{name} does not fit on the single sheet")
-            sheets.append(Sheet(edge, gap))
+            sheets.append(Sheet(edge, gap, x_step))
             spot = min((s for s in (sheets[-1].find_spot(o) for o in orientations(poly)) if s),
                        key=lambda s: s[0])
             sheets[-1].add(num, name, spot[1])

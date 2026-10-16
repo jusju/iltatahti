@@ -46,15 +46,15 @@ T, SLOT = wj.T, wj.SLOT
 GAP_REF = 5.0  # every reference edge is this far from the part it checks
 TABLE = -41.5  # table level (the model's stick top is z 0); the tallest part fits the board
 RAIL_Y, RAIL_H = 30.0, 20.0  # two rails along the model at y = ±RAIL_Y
-X_FRONT, X_REAR = -255.0, 515.0  # rails from the thrust guide's front end to behind the tail
-CROSS_W = 90.0  # cradles and guide beams: width across
+X_FRONT, X_REAR = -225.0, 515.0  # rails from the thrust guide's front end to behind the tail
+CROSS_W = 76.0  # cradles and guide beams: width across
 CRADLES_X = (60.0, 380.0)  # motor stick cradles (in front of the wing, before the tail taper)
 STICK_SLOT = 3.9  # cradle slot for the 4 mm stick: the laser kerf opens it to a snug 4.0
 WING_NOTCH, STAB_NOTCH = 8.0, 4.0  # half widths of the center notches (stick, legs, wedge)
 NOTCH_BELOW = 3.0  # notch bottoms this far below the stick bottom
 WING_HALF, STAB_HALF = 246.0, 128.0  # reference edges reach this far out (y)
-GUIDE_X = (-5.0, -255.0)  # thrust guides from / to
-GUIDE_BEAMS_X = (-25.0, -235.0)
+GUIDE_X = (-5.0, -225.0)  # thrust guides from / to
+GUIDE_BEAMS_X = (-25.0, -205.0)
 GUIDE_H_ABOVE = 10.0  # side guide's top above the wire
 WIRE_R = 0.5  # 1 mm piano wire in the bearing instead of the prop
 JIG_COLOR = m.Color(0.55, 0.40, 0.25)
@@ -63,21 +63,30 @@ JIG_COLOR = m.Color(0.55, 0.40, 0.25)
 # --------------------------------------------------------------------------
 # measurements from the model
 # --------------------------------------------------------------------------
+SLICE = 0.1  # thickness of the measuring slices
+
+
 def spar_bottom(s, y):
-    """Lowest z and middle x of solid s in a thin slice at span position y."""
+    """Lowest z, middle x, front x, rear x of solid s in a thin slice at span position y."""
     b = s.bounding_box()
-    c = s & (Location((b.center().X, y, b.center().Z)) * Box(2000, 0.6, 2000))
-    if c is None or c.volume < 1e-6:
+    c = s & (Location((b.center().X, y, b.center().Z)) * Box(2000, SLICE, 2000))
+    if c is None or c.volume < 1e-9:
         return None
     cb = c.bounding_box()
-    return cb.min.Z, cb.center().X
+    return cb.min.Z, cb.center().X, cb.min.X, cb.max.X
 
 
 def fit_line(s, ys):
     pts = [(y, *spar_bottom(s, y)) for y in ys]
-    y, z, x = (np.array(v) for v in zip(*pts))
+    y, z, x, x0, x1 = (np.array(v) for v in zip(*pts))
     k, c = np.polyfit(y, z, 1)
-    return dict(k=k, c=c, x=float(x.mean()), dev=float(np.abs(z - (k * y + c)).max()))
+    return dict(k=k, c=c, x=float(x.mean()), x_front=float(x0.mean()), x_rear=float(x1.mean()),
+                dev=float(np.abs(z - (k * y + c)).max()))
+
+
+def ref_x(meas, key):
+    """x of a wing reference edge: the middle of the left and right spar."""
+    return (meas[key][0]["x"] + meas[key][1]["x"]) / 2
 
 
 def stick_bottom(stick, x):
@@ -141,7 +150,7 @@ def jig_parts(meas):
     a, b, x0, at = thrust_line()
     parts = []
     # rails
-    xs = [GUIDE_BEAMS_X[1], GUIDE_BEAMS_X[0], CRADLES_X[0], meas["le"][0]["x"], meas["te"][0]["x"],
+    xs = [GUIDE_BEAMS_X[1], GUIDE_BEAMS_X[0], CRADLES_X[0], ref_x(meas, "le"), ref_x(meas, "te"),
           CRADLES_X[1], meas["stab_le"]["x"], meas["stab_te"]["x"]]
     length = X_REAR - X_FRONT
     for name, y in (("kisko vasen", -RAIL_Y), ("kisko oikea", RAIL_Y)):
@@ -165,8 +174,9 @@ def jig_parts(meas):
         parts.append(cross_piece(name, xc, -CROSS_W / 2, CROSS_W / 2, Top(lambda y: 0.0),
                                  [(-STICK_SLOT / 2, zb, STICK_SLOT / 2, 1.0)]))
     # wing reference edges: per half the spar bottom line less GAP_REF; notch at the center
-    for name, (fl, fr), in (("siiven johtoreunan vertailu", meas["le"]), ("siiven jättöreunan vertailu", meas["te"])):
-        x = (fl["x"] + fr["x"]) / 2
+    for name, key in (("siiven johtoreunan vertailu", "le"), ("siiven jättöreunan vertailu", "te")):
+        fl, fr = meas[key]
+        x = ref_x(meas, key)
         zb = stick_bottom(st, x)
 
         def top(y, fl=fl, fr=fr):
@@ -232,7 +242,7 @@ def validate(bld):
     by = {s.label.split(" ", 1)[1]: s for s in jig}
 
     def ref_top(piece, y):
-        c = piece & (Location((piece.bounding_box().center().X, y, 0)) * Box(50, 0.6, 400))
+        c = piece & (Location((piece.bounding_box().center().X, y, 0)) * Box(50, SLICE, 400))
         return c.bounding_box().max.Z
 
     print("Raot vertailureunoihin (tavoite 5,00 mm koko matkalla):")
@@ -250,7 +260,7 @@ def validate(bld):
     g1, g2 = by["vetoviivan alaohjain"], by["vetoviivan sivuohjain"]
     below, side = [], []
     for x in np.linspace(GUIDE_X[1] + 10, GUIDE_X[0] - 10, 6):
-        sl = Location((x, 0, 0)) * Box(0.6, 400, 400)
+        sl = Location((x, 0, 0)) * Box(SLICE, 400, 400)
         wb, b1, b2 = (w & sl).bounding_box(), (g1 & sl).bounding_box(), (g2 & sl).bounding_box()
         below.append(wb.min.Z - b1.max.Z)
         side.append(b2.min.Y - wb.max.Y)
@@ -262,9 +272,10 @@ def validate(bld):
     for side_, i in (("vasen", 0), ("oikea", 1)):
         for y in ((-40, -230) if i == 0 else (40, 225)):
             zl, zt = le[i]["k"] * y + le[i]["c"], te[i]["k"] * y + te[i]["c"]
-            inc = degrees(atan((zl - zt) / (te[i]["x"] - le[i]["x"])))
+            chord = te[i]["x_rear"] - le[i]["x_front"]  # the spars rest on their outer bottom edges
+            inc = degrees(atan((zl - zt) / chord))
             print(f"Asetuskulma {side_} y {y:+5.0f}: {inc:4.2f}° (johto- ja jättöreunan vertailun korkeusero "
-                  f"{zl - zt:4.2f} mm / {te[i]['x'] - le[i]['x']:.1f} mm)")
+                  f"{zl - zt:4.2f} mm, rimojen ulkoreunojen väli {chord:.1f} mm)")
     s = meas["stab_le"]
     print(f"Vakaajan tiltti: vertailureuna y −120 {s['k'] * -120 + s['c'] - GAP_REF:+.2f}, y +120 "
           f"{s['k'] * 120 + s['c'] - GAP_REF:+.2f} mm (ero {-240 * s['k']:.2f} mm, ±{-120 * s['k']:.2f} mm)")

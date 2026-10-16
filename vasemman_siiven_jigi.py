@@ -241,7 +241,7 @@ def laser(parts, stem="jigi_vasen_siipi", jig_id=JIG_ID, what="vasemman siiven j
     tl.glyphs = glyphs
     try:
         items = [(n, name, tl.normalize(poly)) for n, (name, poly, *_) in enumerate(parts, 1)]
-        sheets = tl.nest(items, edge=EDGE, gap=GAP)
+        sheets = tl.nest(items, edge=EDGE, gap=GAP, x_step=10.0)
         tl.TAB_COUNT.clear()
         files = []
         for i, sheet in enumerate(sheets, 1):
