@@ -26,7 +26,9 @@ collapses.
 Note: P-18 contest rule 6 asks for an unmodified commercial plastic prop: a printed prop
 is for practice and sport flying.
 
-Writes step/6propeller.step and step/6propeller.stl (prop axis = Z, front = +Z).
+Writes step/6propeller.step and .stl (prop axis = Z, front = +Z); with
+--profiili raju-backoff (a heavy back-off in a low hall: launch torque only 1.5 times the
+cruise torque) step/6propeller_backoff.step and .stl.
 """
 
 import argparse
@@ -48,6 +50,12 @@ L_OVER_D = 6.0  # whole model
 LAUNCH_TURNS = 1250  # turns at launch (README: 2.5 mm loop): motor run = turns / cruise rpm
 TORQUE_RATIO = 2.5  # rubber torque at the launch / in the cruise (after the back-off)
 LAUNCH_SPEED = 1.2  # flight speed at the launch / cruise (climbing)
+# launch profiles (--profiili): name -> (launch turns, torque ratio, launch speed, file suffix)
+PROFILES = {
+    "normaali": (1250, 2.5, 1.2, ""),  # README: about 10 % back-off, 8 m hall
+    "raju-backoff": (1000, 1.5, 1.05, "_backoff"),  # low hall: ~1400 turns, ~30 % backed off
+}
+SUFFIX = ""
 RHO = 1.20  # air kg/m3
 
 # ---- propeller --------------------------------------------------------------
@@ -296,7 +304,14 @@ def _z_axis():
     return Axis.Z
 
 
-def main(viewer=True):
+def use_profile(name):
+    global LAUNCH_TURNS, TORQUE_RATIO, LAUNCH_SPEED, SUFFIX
+    LAUNCH_TURNS, TORQUE_RATIO, LAUNCH_SPEED, SUFFIX = PROFILES[name]
+
+
+def main(viewer=True, profile="normaali"):
+    use_profile(profile)
+    print(f"Profiili: {profile} (lähtö {LAUNCH_TURNS} kierroksella, vääntö ×{TORQUE_RATIO:g}, nopeus ×{LAUNCH_SPEED:g})")
     best, rows = choose()
     dp = design_point()
     print(f"Lento: paino {MODEL_G + dp['rubber_g']:.1f} g (kumi {dp['rubber_g']:.2f} g), nopeus {dp['v']:.2f} m/s, "
@@ -330,8 +345,8 @@ def main(viewer=True):
           f"lukitusura {GROOVE_W:g} × {GROOVE_DEPTH:g} mm etupinnassa; tilavuus {prop.volume:.0f} mm³ = "
           f"{mass:.2f} g PLA:na (100 % täyttö)")
     OUT.mkdir(exist_ok=True)
-    src = Path(__file__).stem
-    prop.label = f"{Path(__file__).name}: potkuri 6\""
+    src = Path(__file__).stem + SUFFIX
+    prop.label = f"{Path(__file__).name}: potkuri 6\" ({profile})"
     export_step(prop, OUT / f"{src}.step")
     export_stl(prop, str(OUT / f"{src}.stl"), tolerance=0.02, angular_tolerance=0.1)
     print(f"3D: step/{src}.step, step/{src}.stl")
@@ -347,4 +362,7 @@ def main(viewer=True):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description="6\" potkuri Iltatähti P-18:aan, PLA-tulostukseen")
     ap.add_argument("--no-viewer", action="store_true", help="älä lähetä mallia OCP CAD Vieweriin")
-    main(viewer=not ap.parse_args().no_viewer)
+    ap.add_argument("--profiili", choices=list(PROFILES), default="normaali",
+                    help="lähdön oletukset: normaali (n. 10 %% backoff) tai raju-backoff (matala halli)")
+    args = ap.parse_args()
+    main(viewer=not args.no_viewer, profile=args.profiili)
