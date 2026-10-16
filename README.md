@@ -358,3 +358,56 @@ halkaisija, runkotikun korkeus ja taskun vara. Runkotikun korkeus muuttaa myös 
 | `osat_esitys.svg`, `iltatahti_dxf_osat.svg` | numeroitu osaesitys ja DXF:n osat |
 | `pukki-v6.step` | alkuperäinen moottoripukki, joka on vertailukappale parametriselle pukille |
 | `bigsmash.*`, `p-18_pursuit.*`, `p18_cruiser.*` | amerikkalaiset P-18-piirustukset taustamateriaalina |
+
+## Vasemman siiven rakennusjigi
+
+Vasen siipi rakennetaan jigissä, jonka osat leikataan laserilla yhdestä 6 mm:n
+balsalaudasta. Jigiin tarvitaan 529 × 83 mm:n pala. Jigin tekee
+[vasemman_siiven_jigi.py](vasemman_siiven_jigi.py), ja kaikki 13 osaa ovat samassa
+leikkaustiedostossa [laser/jigi_vasen_siipi1.svg](laser/jigi_vasen_siipi1.svg).
+Jokaiseen osaan on kaiverrettu osanumero ja teksti JIGI-VASEN-SIIPI.
+
+- **Seinät:** johto- ja jättöreunan seinät kulkevat rimojen keskikohtien alla.
+- **Wash-in:** johtoreunan seinä nousee tasaisesti tyvestä kärkeen, ja kärkikaaren
+  kohdalla se on 4 mm jättöreunan seinää korkeammalla. Siipeen tulee wash-in ilman shimmejä.
+- **Kaarihaarukat:** keskiseinästä nousee jokaisen siipikaaren kohdalla haarukka, joka
+  pitää 2 mm:n kaaren pystyssä paikallaan ilman nuppineuloja.
+- **Nuppineularistikko:** poikkikappaleet kaarien väleissä. Niiden päissä olevat matalat
+  listat pitävät johto- ja jättöreunariman paikallaan.
+- **Tukipalat:** pohjan tukipalat on upotettu seinien loviin.
+
+### Jigin kokoaminen
+
+<p align="center">
+  <img src="docs/jigi_kokoaminen.svg" alt="Vasemman siiven jigin kokoaminen osa kerrallaan" width="900">
+</p>
+
+Uusi osa näkyy oranssina ensin ylhäällä ja sitten paikallaan. Kokoa jigi tasaisella
+alustalla:
+
+1. Tukipalat pystyyn.
+2. Johtoreunan seinä, keskiseinä ja jättöreunan seinä tukipalojen päälle.
+3. Tyven ja kärjen seinät ylhäältä.
+4. Ristikon poikkikappaleet seinien yläloviin.
+
+Liimaa liitokset ja tarkista, että jigi seisoo suorassa.
+
+### Siiven rakentaminen jigillä
+
+<p align="center">
+  <img src="docs/jigi_kaytto.svg" alt="Vasemman siiven rakentaminen jigillä osa kerrallaan" width="900">
+</p>
+
+Jigi on harmaa, jo paikallaan olevat siiven osat tummat ja uusi osa oranssi. Rakenna
+siipi tässä järjestyksessä:
+
+1. Jättöreunarima ja johtoreunarima seinien päälle reunalistoja vasten.
+2. Siipikaaret haarukoihin kielekkeet rimojen loviin.
+3. Tyvikaari tyviseinän päälle.
+4. V-kulman keskirima kaarien loviin.
+
+Liimaa ohuella syanoakrylaatilla, ja kiinnitä tarvittaessa nuppineuloja ristikkoon rimojen
+viereen. Vahaa tai teippaa haarukat ja ristikko ennen liimausta, jotta siipi ei tartu jigiin.
+
+Animaatiot ja jigi päivittyvät mallin mukana, kun ajat
+`.venv/bin/python vasemman_siiven_jigi.py` ja `.venv/bin/python readme_assets.py`.

@@ -3,6 +3,8 @@ readme_assets.py — pictures and generated tables for README.md, from the same 
 
 Writes
   docs/iltatahti_3d.svg          rotating 3D model (animated SVG, plays on GitHub)
+  docs/jigi_kokoaminen.svg       the left wing jig put together part by part (animated)
+  docs/jigi_kaytto.svg           the left wing built on the jig part by part (animated)
   docs/iltatahti_iso.svg         the 3D view at the top of the building drawing (hidden edges dashed)
   docs/rakennuspiirustus.png     the A0 building drawing as a picture
   step/iltatahti_p18.stl         whole model as STL (GitHub shows it in an interactive 3D viewer)
@@ -348,6 +350,144 @@ def iso_svg(shapes, path: Path, width=1000, margin=20):
     path.write_text("\n".join(svg) + "\n")
 
 
+# --------------------------------------------------------------------------
+# step by step animations (jig assembly, building the wing on the jig)
+# --------------------------------------------------------------------------
+STEP_CAM = (-1.0, 0.9, 0.8)  # from the front left above, like the drawing's 3D views
+STEP_COLORS = {"base": "#9aa3ad", "old": "#1d2733", "new": "#e8590c"}
+
+
+def _project(shapes, center):
+    comp = Compound([s.moved(Location((-center.X, -center.Y, -center.Z))) for s in shapes])
+    vis, _ = comp.project_to_viewport(tuple(v * 3000 for v in STEP_CAM), (0, 0, 1), look_at=(0, 0, 0))
+    out = []
+    for e in vis:
+        if e.geom_type == GeomType.LINE:
+            ps = [e.position_at(0), e.position_at(1)]
+        else:
+            n = max(3, int(e.length / 1.0))
+            ps = [e.position_at(k / n) for k in range(n + 1)]
+        out.append([(p.X, p.Y) for p in ps])
+    return out
+
+
+def _samples(line, step=0.5):
+    pts = []
+    for (x0, y0), (x1, y1) in zip(line, line[1:]):
+        n = max(1, int(((x1 - x0) ** 2 + (y1 - y0) ** 2) ** 0.5 / step))
+        pts += [(x0 + (x1 - x0) * k / n, y0 + (y1 - y0) * k / n) for k in range(n)]
+    return pts + [line[-1]]
+
+
+def _split(lines, earlier, cell=0.3):
+    """Lines that were already visible in `earlier` (same place) and the new ones."""
+    grid = {(round(x / cell), round(y / cell)) for l in earlier for x, y in _samples(l)}
+    old, new = [], []
+    for l in lines:
+        sm = _samples(l)
+        hit = sum(1 for x, y in sm if any((round(x / cell) + dx, round(y / cell) + dy) in grid
+                                         for dx in (-1, 0, 1) for dy in (-1, 0, 1)))
+        (old if hit >= 0.8 * len(sm) else new).append(l)
+    return old, new
+
+
+def step_svg(base, steps, path: Path, title: str, lift=40.0, seconds=1.4, width=900, hold=3):
+    """Animated SVG: `base` shapes (grey) stay; every step adds shapes (orange), first
+    lifted `lift` mm above their place, then in place; earlier steps are dark."""
+    allshapes = base + [s for new, _ in steps for s in new]
+    center = Compound(allshapes).bounding_box().center()
+    up = Location((0, 0, lift))
+    frames = []  # (layers {color key: lines}, step text)
+    placed = []
+    base_lines = _project(base, center) if base else []
+    for k, (new, text) in enumerate(steps, 1):
+        before = _project(base + placed, center) if base or placed else []
+        _, placed_only = _split(before, base_lines)
+        for shapes in ([s.moved(up) for s in new], new):
+            lines = _project(base + placed + shapes, center)
+            old, fresh = _split(lines, before)
+            o_, b_ = _split(old, placed_only)  # old lines: earlier steps, the rest is the base (jig)
+            if not base:
+                b_, o_ = [], old
+            frames.append(({"base": b_, "old": o_, "new": fresh}, f"{k}/{len(steps)}  {text}"))
+        placed += new
+    done = _project(base + placed, center)
+    b_, o_ = _split(done, base_lines) if base else ([], done)
+    frames += [({"base": b_, "old": o_, "new": []}, "Valmis")] * hold
+    ext_x = max(abs(x) for f, _ in frames for ls in f.values() for l in ls for x, _ in l)
+    ext_y = max(abs(y) for f, _ in frames for ls in f.values() for l in ls for _, y in l)
+    sc = (width / 2 - 20) / ext_x
+    height = int(2 * ext_y * sc + 80)
+    cx, cy = width / 2, height / 2 + 22
+    n, cycle = len(frames), seconds * len(frames)
+    out = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
+           f"<title>{title}</title>",
+           f"<style>.f{{opacity:0;animation:k {cycle:g}s step-end infinite}}.f0{{opacity:1}}"
+           f"@keyframes k{{0%{{opacity:1}}{100 / n:.4f}%{{opacity:0}}100%{{opacity:0}}}}"
+           "path{fill:none;stroke-linejoin:round;stroke-linecap:round}text{font-family:sans-serif}</style>",
+           f'<rect width="{width}" height="{height}" rx="10" fill="#ffffff"/>',
+           f'<text x="18" y="28" font-size="17" font-weight="bold" fill="#1d2733">{title}</text>']
+    widths = {"base": 0.7, "old": 0.9, "new": 1.6}
+    for i, (layers, text) in enumerate(frames):
+        g = [f'<g class="{"f f0" if i == 0 else "f"}" style="animation-delay:{seconds * i:.2f}s">',
+             f'<text x="18" y="50" font-size="14" fill="{STEP_COLORS["new"] if text != "Valmis" else "#1f9d4c"}">'
+             f'{text}</text>']
+        for key in ("base", "old", "new"):
+            d = []
+            for l in layers[key]:
+                pts = list(LineString([(cx + x * sc, cy - y * sc) for x, y in l]).simplify(0.3).coords)
+                if len(pts) > 1:
+                    d.append(f"M{pts[0][0]:.1f} {pts[0][1]:.1f}" + "".join(f"L{x:.1f} {y:.1f}" for x, y in pts[1:]))
+            if d:
+                g.append(f'<path stroke="{STEP_COLORS[key]}" stroke-width="{widths[key]}" d="{"".join(d)}"/>')
+        g.append("</g>")
+        out.append("".join(g))
+    out.append("</svg>")
+    path.write_text("\n".join(out) + "\n")
+
+
+def jig_animations():
+    import vasemman_siiven_jigi as jig
+
+    b = jig.build()
+    sol = b["solids"]
+    names = [name for name, *_ in b["parts"]]
+    num = {name: n for n, name in enumerate(names, 1)}
+
+    def text(i):
+        name = names[i]
+        if name.startswith("tukipala"):
+            rib = jig.BRACE_RIBS[int(name.split()[-1]) - 1]
+            return f"osa {num[name]}, {name}: pystyyn alustalle, siipikaaren {rib} kohdalle"
+        return f"osa {num[name]}, {name}: " + {
+            "johtoreunan seinä": "tukipalojen päälle, lovet alas, korkeampi pää kärkeen",
+            "keskiseinä + haarukat": "tukipalojen päälle, haarukat ylös",
+            "jättöreunan seinä": "tukipalojen päälle, lovet alas",
+            "tyven seinä": "ylhäältä seinien päätyihin (puolipontit)",
+            "kärjen seinä": "ylhäältä, korkeampi pää johtoreunan puolelle",
+        }.get(name, "seinien yläloviin, reunalistat ulospäin")
+    order = [i for i, n in enumerate(names) if n.startswith("tukipala")] + [0, 2, 1, 3, 4] + \
+            [i for i, n in enumerate(names) if n.startswith("ristikko")]
+    step_svg([], [([sol[i]], text(i)) for i in order], DOCS / "jigi_kokoaminen.svg",
+             "Vasemman siiven jigin kokoaminen")
+
+    parts, *_ = m.wing_parts()
+    pnum = {p.name: n for n, p in enumerate(parts, 1)}  # = the laser part numbers
+    wing = {w.label: w for w in b["wing"]}
+    ribs = sorted((l for l in wing if l.startswith("wing_L_rib")), key=lambda l: int(l.split("_rib")[1].split("_")[0]))
+    steps = [([wing["wing_L_te_spar"]], f"osa {pnum['wing_L_te_spar']}, jättöreunarima: seinän päälle reunalistoja vasten"),
+             ([wing["wing_L_le_spar"]], f"osa {pnum['wing_L_le_spar']}, johtoreunarima: seinän päälle reunalistoja "
+                                        "vasten, kärjessä 4 mm ylempänä (wash-in)")]
+    for l in ribs[1:] + ribs[:1]:
+        i = int(l.split("_rib")[1].split("_")[0])
+        kind = "täysikaari" if i == 1 else "siipikaari"
+        steps.append(([wing[l]], f"osa {pnum[l]}, " + ("tyvikaari: tyviseinän päälle" if i == 0 else
+                                                      f"{kind}: haarukkaan, kielekkeet rimojen loviin")))
+    steps.append(([wing["wing_L_center_spar"]], f"osa {pnum['wing_L_center_spar']}, V-kulman keskirima: "
+                                                "tyvikaaren ja täysikaaren loviin"))
+    step_svg(sol, steps, DOCS / "jigi_kaytto.svg", "Vasemman siiven rakentaminen jigillä")
+
+
 def light_model(simplify=0.25):
     """The model again with every balsa outline simplified (README 3D viewer only):
     far fewer triangles, no visible difference at screen size."""
@@ -384,6 +524,7 @@ def main():
     prop, _, _ = drawing.prop_solid(mount_bb)
 
     iso_svg(allp + [prop], DOCS / "iltatahti_iso.svg")
+    jig_animations()
     light = light_model()
     rotating_svg(light + [prop], DOCS / "iltatahti_3d.svg")
     drawing_png(DOCS / "rakennuspiirustus.png")
@@ -395,7 +536,8 @@ def main():
     text = fill(text, "saannot", rules_md(solids))
     text = fill(text, "paino", budget_md(rows, groups, extra))
     README.write_text(text, encoding="utf-8")
-    for f in (DOCS / "iltatahti_3d.svg", DOCS / "iltatahti_iso.svg", DOCS / "rakennuspiirustus.png", m.STEP_DIR / f"{m.MODEL_ID}.stl"):
+    for f in (DOCS / "iltatahti_3d.svg", DOCS / "iltatahti_iso.svg", DOCS / "jigi_kokoaminen.svg",
+              DOCS / "jigi_kaytto.svg", DOCS / "rakennuspiirustus.png", m.STEP_DIR / f"{m.MODEL_ID}.stl"):
         print(f"{f.relative_to(HERE)}: {f.stat().st_size / 1024:.0f} kB")
     print("README.md: tekniset tiedot, sääntötarkistus ja painobudjetti päivitetty")
 
