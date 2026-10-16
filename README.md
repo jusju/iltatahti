@@ -51,9 +51,9 @@ mittakaavalla. Piirustuksessa on 100 mm:n tarkistusmitta, jolla voi varmistaa, e
 <!-- BEGIN:tekniset -->
 | | |
 |---|---|
-| Siipi | 480 mm rimoja pitkin (vasen 245, oikea 235), projektio 477,7 mm, jänne 80 mm |
+| Siipi | 480 mm rimoja pitkin (vasen 245, oikea 235), projektio 477,2 mm, jänne 80 mm |
 | V-kulma | 7,02° kummallakin puoliskolla (DXF-riman 9 tyviviiste) |
-| Asetuskulma / wash-in | siipi +2° kiilalla, vasemman siiven jättöreuna kärjessä 4 mm alempana |
+| Asetuskulma / wash-in | siipi +2° kiilalla, vasemman siiven johtoreuna kärjessä 4 mm ylempänä |
 | Korkeusvakaaja | 240 × 66,2 mm, tasainen, 5 kaarta, kallistus ±5 mm |
 | Sivuperäsin | 50/30 × 60 mm, kääntyvä, 2° vasemmalle |
 | Runkotikku | 7 × 4 × 497 mm balsaa, takapää kapenee 4 mm:iin; hiilikuitulatat 0,1 × 1 mm päällä ja alla |
@@ -91,8 +91,8 @@ Mallista mitatut arvot, jotka `p18_iltatahti.py` tarkistaa jokaisella päivityks
 <!-- BEGIN:saannot -->
 | Sääntö | Mitta | Malli mm | Raja mm | |
 |---:|---|---:|---:|---|
-| 3 | siiven kärkiväli (projektio) | 477,7 | 457,2 | ❌ ylittyy |
-| 3 | siiven jänne (projektio) | 82,5 | 114,3 | ✅ |
+| 3 | siiven kärkiväli (projektio) | 477,2 | 457,2 | ❌ ylittyy |
+| 3 | siiven jänne (projektio) | 82,6 | 114,3 | ✅ |
 | 4 | korkeusvakaajan kärkiväli | 239,9 | 228,6 | ❌ ylittyy |
 | 4 | korkeusvakaajan jänne | 66,2 | 88,9 | ✅ |
 | 5 | kokonaispituus potkuri mukaan lukien | 507,0 | 457,2 | ❌ ylittyy |

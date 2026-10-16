@@ -216,8 +216,8 @@ def tech_md(solids, info) -> str:
         ("Siipi", f"{fi(sp['L'] + sp['R'], 0)} mm rimoja pitkin (vasen {fi(sp['L'], 0)}, oikea {fi(sp['R'], 0)}), "
                   f"projektio {fi(w.size.Y, 1)} mm, jänne {fi(info['chord'], 0)} mm"),
         ("V-kulma", f"{fi(info['dihedral'], 2)}° kummallakin puoliskolla (DXF-riman 9 tyviviiste)"),
-        ("Asetuskulma / wash-in", f"siipi +{fi(m.WING_INCIDENCE, 0)}° kiilalla, vasemman siiven jättöreuna kärjessä "
-                                  f"{fi(m.WASH_IN_LEFT, 0)} mm alempana"),
+        ("Asetuskulma / wash-in", f"siipi +{fi(m.WING_INCIDENCE, 0)}° kiilalla, vasemman siiven johtoreuna kärjessä "
+                                  f"{fi(m.WASH_IN_LEFT, 0)} mm ylempänä"),
         ("Korkeusvakaaja", f"{fi(Compound(solids['stab']).bounding_box().size.Y, 0)} × {fi(info['stab_chord'], 1)} mm, "
                            f"tasainen, {len(m.STAB_RIBS)} kaarta, kallistus ±{fi(m.STAB_TILT, 0)} mm"),
         ("Sivuperäsin", f"{fi(m.RUDDER_ROOT, 0)}/{fi(m.RUDDER_TIP, 0)} × {fi(m.RUDDER_HEIGHT, 0)} mm, "

@@ -851,12 +851,12 @@ def make(built=None):
     pa2, pb2 = fv.at(leR), fv.at(teR)
     dim_v(sh, pa2[1], pb2[1], pa2[0], pb2[0], min(pa2[0], pb2[0]) - 6, fmt(leR[2] - teR[2]))
     nb_x, nb_y = pb[0] - 150, y1 + 15
-    box_note(sh, nb_x, nb_y, ["VASEMMAN SIIVEN TAKAREUNA: WASH-IN 4 mm",
+    box_note(sh, nb_x, nb_y, ["VASEMMAN SIIVEN JOHTOREUNA: WASH-IN 4 mm YLÖS",
                               f"Etu-/takareunan korkeusero kärjessä {fmt(leL[2] - teL[2])} = "
                               f"{fmt(leR[2] - teR[2])} (oikea) + 4 wash-in (ks. E).",
                               "Rakennetaan shimmeillä etureunan alla (taulukko keskellä)."], size=TXT_S, w=150)
-    sh.line((nb_x + 150, nb_y + 4), (pb[0] + 1, pb[1] + 1))
-    sh.arrow((pb[0] + 1, pb[1] + 1), (pb[0] + 1 - (nb_x + 150), pb[1] + 1 - (nb_y + 4)))
+    sh.line((nb_x + 150, nb_y + 4), (pa[0] + 1, pa[1] + 1))
+    sh.arrow((pa[0] + 1, pa[1] + 1), (pa[0] + 1 - (nb_x + 150), pa[1] + 1 - (nb_y + 4)))
     lab_l = f"VASEN SIIPI — {fmt(info['spans']['L'])} rimaa pitkin"
     lab_r = f"OIKEA SIIPI — {fmt(info['spans']['R'])} rimaa pitkin"
     sh.text(min(a[0], b[0]) + 2, y1 + 9, lab_r if a[0] > b[0] else lab_l, size=TXT, bold=True)
@@ -1010,80 +1010,75 @@ def make(built=None):
     shx, shy = fx + m.RUDDER_ROOT + 30, ty0 - 16
     sh.text(shx, shy, "SHIMMIT — VASEMMAN SIIVEN WASH-IN 4 mm", size=TXT, bold=True)
     sh.text(shx, shy + 4.5, "Rakenna jättöreuna alustaa vasten, shimmi etureunan", size=2.2)
-    sh.text(shx, shy + 8, "alle kunkin kaaren kohdalle. Oikea siipi suorana.", size=2.2)
+    sh.text(shx, shy + 8, "alle kunkin kaaren kohdalle (johtoreuna nousee). Oikea siipi suorana.", size=2.2)
     _, st = m.wing_spar_profile(m.WING_HALVES["L"][1], radians(dih))
     sugg = {0.8: "0,8 vaneri / 1/32\"", 1.6: "1/16\" balsa", 2.4: "3/32\" balsa", 3.2: "1/8\" balsa", 4.0: "5/32\" balsa"}
     srows = []
     for i, s_ in enumerate(st):
-        drop = m.WASH_IN_LEFT * s_ / st[-1] if i else 0.0
+        rise = m.WASH_IN_LEFT * s_ / st[-1] if i else 0.0
         name = next(p.name for p in flat if p.name.startswith(f"wing_L_rib{i}_"))
-        key = min(sugg, key=lambda v: abs(v - drop)) if drop > 0.3 else None
+        key = min(sugg, key=lambda v: abs(v - rise)) if rise > 0.3 else None
         srows.append([str(nums[name]), ["Tyvikaari", "Täysikaari"][i] if i < 2 else "Siipikaari",
-                      fmt(s_), fmt(drop, 1) if i else "0", sugg[key] if key else "—"])
+                      fmt(s_), fmt(rise, 1) if i else "0", sugg[key] if key else "—"])
     table(sh, shx, shy + 11, [11, 24, 27, 20, 46], ["OSA", "KAARI", "KESKELTÄ", "SHIMMI", "ESIM. LEVY"],
           srows, row_h=4.2, size=2.2)
+    shim_bottom = shy + 11 + 4.2 * (len(srows) + 1)
 
-    # ---- L6 bottom left corner: three-view 1:5 ----
+    # ---- L6 bottom left corner: three-view, as big as the corner allows ----
     l_top = max(ty1 + 18, oy_f + m.RUDDER_PIVOT + 16)
     tv_f = View(allp, (-1, 0, 0), (0, 0, 1))  # from the front
-    tv_s = View(allp, (0, -1, 0), (0, 0, 1))  # from the left, placed right of the front view
-    tv_t = View(allp, (0, 0, 1), (1, 0, 0))   # from above, placed below the front view
-    # the largest standard scale that fits the corner
-    h_model = (tv_f.bb[3] - tv_f.bb[1]) + (tv_t.bb[3] - tv_t.bb[1])
+    tv_s = View(allp, (0, -1, 0), (0, 0, 1))  # from the left
+    tv_t = View(allp, (0, 0, 1), (0, 1, 0))   # from above, nose left like the side view
+    # front and left view side by side at the bottom left; the tall top view at the
+    # right end of the column, under the shim table, where there is more height
+    row_gap, l_right = 14.0, 612.0 - 8  # column M starts at x 612
+    t_top = shim_bottom + 14
+    w_model = sum(v_.bb[2] - v_.bb[0] for v_ in (tv_f, tv_s, tv_t))
+    h_fs = max(v_.bb[3] - v_.bb[1] for v_ in (tv_f, tv_s))
+    h_t = tv_t.bb[3] - tv_t.bb[1]
     avail_h = FRAME[3] - 18 - (l_top + 14) - 10
-    den = next(n for n in (5, 6, 8, 10, 15, 20) if h_model / n <= avail_h)
+    avail_t = FRAME[3] - 18 - (t_top + 6) - 12
+    den = next(n for n in (2, 3, 4, 5, 6, 8, 10, 15, 20)
+               if h_fs / n <= avail_h and h_t / n <= avail_t and w_model / n + 2 * row_gap <= l_right - 34)
     for v_ in (tv_f, tv_s, tv_t):
         v_.scale = 1 / den
     sh.text(30, l_top, f"KOLMITAHOKUVA 1:{den}", size=TXT_L, bold=True)
-    sh.text(30, l_top + 5, "projektio ISO-E (1. kulma)", size=TXT_S)
+    sh.text(30, l_top + 5, "edestä, vasemmalta ja ylhäältä (nokka vasemmalla)", size=TXT_S)
     tv_f.place_tl(34, l_top + 14)
     f_bb = tv_f.sheet_bb()
-    tv_s.place_tl(f_bb[2] + 12, l_top + 14)
-    tv_t.place_tl(34, f_bb[3] + 10)
+    tv_s.place_tl(f_bb[2] + row_gap, l_top + 14)
+    tv_t.place_tl(max(tv_s.sheet_bb()[2] + row_gap, l_right - (tv_t.bb[2] - tv_t.bb[0]) / den), t_top + 6)
     for v_, lab in ((tv_f, "edestä"), (tv_s, "vasemmalta"), (tv_t, "ylhäältä")):
         v_.draw(sh, w=0.3)
         b_ = v_.sheet_bb()
         sh.text((b_[0] + b_[2]) / 2, b_[3] + 4, lab, size=2.2, anchor="middle")
     s_bb, t_bb = tv_s.sheet_bb(), tv_t.sheet_bb()
-    dim_h(sh, t_bb[0], t_bb[2], t_bb[3], t_bb[3], t_bb[3] + 9, fmt(tipR - tipL))
+    dim_h(sh, f_bb[0], f_bb[2], f_bb[3], f_bb[3], f_bb[3] + 9, fmt(tipR - tipL))
+    dim_h(sh, t_bb[0], t_bb[2], t_bb[3], t_bb[3], t_bb[3] + 9, fmt(m.TAIL_END_X - mb_.min.X))
     dim_h(sh, s_bb[0], s_bb[2], s_bb[3], s_bb[3], s_bb[3] + 9, fmt(m.TAIL_END_X - mb_.min.X))
     tv_right = max(f_bb[2], s_bb[2], t_bb[2])
 
-    # ---- F stab tilt 3D, right of the three-view, as big as the space allows ----
-    fx_ = tv_right + 22
+    # F (stab tilt) is drawn in column M under H
     vf = View(crop(allp, (m.TAIL_END_X - 80, -130, -12), (m.TAIL_END_X + 6, 130, 70)), (1, -0.38, 0.32), (0, 0, 1), scale=3.0, hidden=True)
-    vf.fit(590 - fx_, FRAME[3] - 14 - (l_top + 22))
-    detail_title(sh, fx_, l_top, "F — KORKEUSVAKAAJAN TILTTI ±5 mm (3D)",
-                 "oikea kärki 5 alempana, vasen 5 ylempänä; pistekatkoviiva = suora rima rungon päällä")
-    vf.place_tl(fx_ + (590 - fx_ - vf.size[0]) / 2, l_top + 18)
-    vf.draw(sh, w=0.4)
-    rl, rr = vf.at((sb.max.X, -125, zc)), vf.at((sb.max.X, 125, zc))
-    sh.line(rl, rr, w=0.3, dash="8 1.2 1 1.2")
-    tl_ = max((v for v in st_le.vertices() if v.Y < -119), key=lambda v: v.Z)
-    tr_ = max((v for v in st_le.vertices() if v.Y > 119), key=lambda v: v.Z)
-    dim(sh, vf.at((tl_.X, tl_.Y, zc)), vf.at((tl_.X, tl_.Y, tl_.Z)), 10, "+5 mm (vasen)", size=TXT_L)
-    dim(sh, vf.at((tr_.X, tr_.Y, zc)), vf.at((tr_.X, tr_.Y, tr_.Z)), -10, "−5 mm (oikea)", size=TXT_L)
-    for s_ in ss:
-        if "le_spar" in s_.label:
-            tip = vf.at((s_.bounding_box().center().X, 60, zc))
-            balloon(sh, tip, (tip[0] + 10, tip[1] + 14), str(nums[s_.label]), arrow=True)
 
     # ================= COLUMN M: 3D views, stacked with even gaps =================
     MX, MW = 612.0, 240.0
     iso_all = View(allp + [prop], (-1, -1.25, 0.75), (0, 0, 1), scale=1.0, hidden=True).fit(MW - 8)
     reg = crop([s for s in allp if s.label != "pukki"], (88, -26, -11), (206, 6, 16))
     vd = View(reg, (-0.32, -1, 0.3), (0, 0, 1), scale=4.0, hidden=True).fit(MW - 12)
-    ve = View(crop(W_, (95, -252, -10), (200, -135, 70)), (1, -0.8, 0.55), (0, 0, 1), scale=4.0, hidden=True).fit(MW - 40)
+    # E (wash-in) goes to column R above the parts list, with the four outer left ribs
+    ve = View(crop(W_, (95, -252, -10), (200, -88, 70)), (1, -0.8, 0.55), (0, 0, 1), scale=4.0, hidden=True)
     vg = View(crop(allp, (fin_le - 8, -9, -20), (fin_le + 58, 9, 66)), (-0.55, -1.0, 0.75), (0, 0, 1), scale=4.0, hidden=True).fit(MW - 70, 165)
     nose_sh = crop([mount, named["motor_stick"], prop], (-14, -24, -40), (30, 24, 6))
     ht = View(nose_sh, (0, 0, 1), (0, 1, 0), scale=1.7)
     hs = View(nose_sh, (0, -1, 0), (0, 0, 1), scale=1.0)
-    blocks = [iso_all.size[1] + 14, vd.size[1] + 26, ve.size[1] + 26, vg.size[1] + 26,
-              max(ht.size[1], hs.size[1]) + 24]
     avail = FRAME[3] - 6 - 18
+    others = [iso_all.size[1] + 14, vd.size[1] + 26, vg.size[1] + 26, max(ht.size[1], hs.size[1]) + 24]
+    vf.fit(MW - 24, avail - sum(others) - 4 * 10 - 30)
+    blocks = others + [vf.size[1] + 30]
     gap = max(8.0, min(40.0, (avail - sum(blocks)) / (len(blocks) - 1)))
-    if sum(blocks) + gap * 4 > avail + 1:
-        print(f"WARNING: column M needs {sum(blocks) + gap * 4:.0f} mm, has {avail:.0f}")
+    if sum(blocks) + gap * (len(blocks) - 1) > avail + 1:
+        print(f"WARNING: column M needs {sum(blocks) + gap * (len(blocks) - 1):.0f} mm, has {avail:.0f}")
     y_ = 20.0
 
     detail_title(sh, MX, y_, f"{MODEL_NAME.upper()} — 3D", "6\" muovipotkuri (havainnekuva); katkoviiva = piilossa oleva särmä")
@@ -1118,25 +1113,6 @@ def make(built=None):
             f"(etupää {fmt(hfw)}, takapää {fmt(m.WEDGE_MIN_H)} mm)", size=TXT_S)
     y_ += blocks[1] + gap
 
-    detail_title(sh, MX, y_, "E — WASH-IN, VASEN SIIPI 4 mm",
-                 "katsottuna takaa vasemmalta (lentäjän suunnasta); takareuna kärjessä 4 mm alempana")
-    ve.place_tl(MX + 6, y_ + 14)
-    ve.draw(sh, w=0.35)
-    e0 = ve.sheet_bb()
-    tev = named["wing_L_te_spar"].vertices()
-    tip_v = max((v for v in tev if v.Y < tipL + 0.6), key=lambda v: v.X + v.Z)
-    mid_v = max((v for v in tev if abs(v.Y + 140) < 6), key=lambda v: v.X + v.Z - abs(v.Y + 140))
-    ph_tip = Vector(tip_v.X, tip_v.Y, tip_v.Z + m.WASH_IN_LEFT)
-    ph_mid = Vector(mid_v.X, mid_v.Y, mid_v.Z + m.WASH_IN_LEFT * abs(mid_v.Y) / abs(tip_v.Y))
-    sh.line(ve.at(ph_mid), ve.at(ph_tip), w=0.4, dash="3 1.5")
-    dim(sh, ve.at(ph_tip), ve.at((tip_v.X, tip_v.Y, tip_v.Z)), -24, "4 mm", size=TXT_L)
-    sh.text(MX, e0[3] + 16, "lyhyt katkoviiva = takareuna ilman wash-iniä", size=TXT_S)
-    kt = ve.at((tip_v.X - 40, tip_v.Y, tip_v.Z + 6))
-    sh.text(kt[0], kt[1] - 3, "VASEN KÄRKI", size=TXT, bold=True, anchor="middle")
-    ri = ve.at((150, -136, 40))
-    sh.text(ri[0], ri[1] - 2, "runkoa kohti →" if ri[0] > kt[0] else "← runkoa kohti", size=TXT_S,
-            anchor="end" if ri[0] > kt[0] else "start")
-    y_ += blocks[2] + gap
 
     detail_title(sh, MX, y_, "G — SIVUPERÄSIN 2° VASEMMALLE", "jättöreuna vasemmalle: alhaalla 1,7 mm, ylhäällä 1,0 mm")
     vg.place_tl(MX + (MW - vg.size[0]) / 2, y_ + 14)
@@ -1153,7 +1129,7 @@ def make(built=None):
         sh.line(vg.at(turned(-6, z, 0)), vg.at(turned(xlen + 8, z, 0)), w=0.3, dash="6 1 1 1")
         dim(sh, vg.at(turned(xlen, z, 0)), vg.at(turned(xlen, z, m.RUDDER_TURN)), 9 * side, f"{lab} mm", size=TXT)
     sh.text(MX, g0[3] + 8, "pistekatkoviiva = rungon suuntainen (peräsin suorassa)", size=TXT_S)
-    y_ += blocks[3] + gap
+    y_ += blocks[2] + gap
 
     detail_title(sh, MX, y_, "H — POTKURIN AKSELI",
                  f"{thrust_text()}; pukin laakeriputki tehty tähän kulmaan (pukki.txt)")
@@ -1175,7 +1151,23 @@ def make(built=None):
     sh.line(q1, q2, w=0.45)
     sh.text(q2[0] + 2, q2[1] - 1.5, f"{fmt(abs(m.THRUST_DOWN))}°", size=TXT, bold=True)
     sh.text((s0_[0] + s0_[2]) / 2, s0_[3] + 5, f"sivulta — {thrust_ud()}", size=TXT_S, anchor="middle")
-    for v_ in (iso_all, vd, ve, vg, ht, hs):
+    y_ += blocks[3] + gap
+
+    detail_title(sh, MX, y_, "F — KORKEUSVAKAAJAN TILTTI ±5 mm (3D)",
+                 "oikea kärki 5 alempana, vasen 5 ylempänä; pistekatkoviiva = suora rima rungon päällä")
+    vf.place_tl(MX + (MW - vf.size[0]) / 2, y_ + 18)
+    vf.draw(sh, w=0.4)
+    rl, rr = vf.at((sb.max.X, -125, zc)), vf.at((sb.max.X, 125, zc))
+    sh.line(rl, rr, w=0.3, dash="8 1.2 1 1.2")
+    tl_ = max((v for v in st_le.vertices() if v.Y < -119), key=lambda v: v.Z)
+    tr_ = max((v for v in st_le.vertices() if v.Y > 119), key=lambda v: v.Z)
+    dim(sh, vf.at((tl_.X, tl_.Y, zc)), vf.at((tl_.X, tl_.Y, tl_.Z)), 10, "+5 mm (vasen)", size=TXT_L)
+    dim(sh, vf.at((tr_.X, tr_.Y, zc)), vf.at((tr_.X, tr_.Y, tr_.Z)), -10, "−5 mm (oikea)", size=TXT_L)
+    for s_ in ss:
+        if "le_spar" in s_.label:
+            tip = vf.at((s_.bounding_box().center().X, 60, zc))
+            balloon(sh, tip, (tip[0] + 10, tip[1] + 14), str(nums[s_.label]), arrow=True)
+    for v_ in (iso_all, vd, vg, ht, hs, vf):
         if v_.sheet_bb()[2] > MX + MW + 2:
             print(f"WARNING: a column M view runs to x {v_.sheet_bb()[2]:.0f}")
 
@@ -1229,7 +1221,7 @@ def make(built=None):
         ["Siiven jänne / pinta-ala", f"{fmt(chord)} mm / {fmt(wing_area, 2)} dm²"],
         ["V-kulma / asetuskulma", f"{fmt(dih, 2)}° / {fmt(m.WEDGE_ANGLE)}° (D)"],
         ["Reunarimat", f"4×2, kallistus {fmt(m.RIB_TAB_SLOPE)}° yläpinnan mukaan"],
-        ["Wash-in", f"vasen siipi, takareuna kärjessä {fmt(m.WASH_IN_LEFT)} mm alempana (E)"],
+        ["Wash-in", f"vasen siipi, johtoreuna kärjessä {fmt(m.WASH_IN_LEFT)} mm ylempänä (E)"],
         ["Korkeusvakaaja", f"{fmt(sb.size.Y)}×{fmt(sb.size.X)} mm, {fmt(stab_area, 2)} dm², tiltti ±{fmt(m.STAB_TILT)} mm (F)"],
         ["Sivuperäsin", f"{fmt(m.RUDDER_ROOT)}/{fmt(m.RUDDER_TIP)}×{fmt(m.RUDDER_HEIGHT)} mm, {fmt(m.RUDDER_TURN)}° vasemmalle (G)"],
         ["Vetoviiva", f"{thrust_text()} (H, pukki.txt)"],
@@ -1288,6 +1280,54 @@ def make(built=None):
     for k, (kind, ln) in enumerate(lines):
         col, row = divmod(k, per_col)
         sh.text(RX0 + col * col_w, uy + 3 + row * lh + 1.6, ln, size=fs_ + (0.1 if kind == "H" else 0), bold=(kind == "H"))
+    us_bottom = uy + 3 + per_col * lh + 2
+
+    # ---- E: wash-in of the left wing, four outer ribs, in the free space above the parts list ----
+    ey = us_bottom + 9
+    e_room = pl_top - 8 - (ey + 16) - 14  # title above, rib labels below
+    if e_room < 60:
+        print(f"WARNING: detail E has only {e_room:.0f} mm height")
+    ve.fit(RW - 70, e_room)
+    detail_title(sh, RX0, ey, f"E — WASH-IN, VASEN SIIPI {fmt(m.WASH_IN_LEFT)} mm",
+                 "katsottuna takaa vasemmalta (lentäjän suunnasta); johtoreuna nousee kärkeä kohti tasaisesti, "
+                 f"kärjessä {fmt(m.WASH_IN_LEFT)} mm; jättöreuna suorana")
+    ve.place_tl(RX0 + 66, ey + 16)
+    ve.draw(sh, w=0.35)
+    e0 = ve.sheet_bb()
+    lev = named["wing_L_le_spar"].vertices()
+    tip_v = max((v for v in lev if v.Y < tipL + 0.6), key=lambda v: v.Z - v.X)  # LE tip, top front corner
+    mid_v = max((v for v in lev if abs(v.Y + 100) < 6), key=lambda v: v.Z - v.X - abs(v.Y + 100))
+    ph_tip = Vector(tip_v.X, tip_v.Y, tip_v.Z - m.WASH_IN_LEFT)  # where the LE would be without wash-in
+    ph_mid = Vector(mid_v.X, mid_v.Y, mid_v.Z - m.WASH_IN_LEFT * abs(mid_v.Y) / abs(tip_v.Y))
+    sh.line(ve.at(ph_mid), ve.at(ph_tip), w=0.4, dash="3 1.5")
+    a_lo, a_hi = ve.at(ph_tip), ve.at((tip_v.X, tip_v.Y, tip_v.Z))
+    dim(sh, a_lo, a_hi, 7, f"{fmt(m.WASH_IN_LEFT)} mm", size=TXT_L)
+    # big upward arrow beside the LE tip: the LE goes up
+    ax_ = a_lo[0] - 13
+    sh.line((ax_, a_lo[1] + 10), (ax_, a_hi[1]), w=0.6)
+    sh.arrow((ax_, a_hi[1]), (0, -1), length=4, half=1.4)
+    sh.text(ax_ - 3, a_lo[1] + 9, f"JOHTOREUNA YLÖS {fmt(m.WASH_IN_LEFT)} mm", size=TXT, bold=True, anchor="end")
+    kt = ve.at((tip_v.X, tip_v.Y, tip_v.Z))
+    sh.text(kt[0] + 4, kt[1] - 9, "VASEN KÄRKI", size=TXT, bold=True, anchor="start")
+    ri = ve.at((150, -92, 40))
+    sh.text(ri[0], ri[1] - 2, "runkoa kohti →" if ri[0] > kt[0] else "← runkoa kohti", size=TXT_S,
+            anchor="end" if ri[0] > kt[0] else "start")
+    # under every rib: how much its LE is raised (linear from the root to WASH_IN_LEFT at the tip)
+    _, st_l = m.wing_spar_profile(m.WING_HALVES["L"][1], radians(dih))
+    for i, s_ in enumerate(st_l):
+        rib = next((x for x in W_ if x.label.startswith(f"wing_L_rib{i}_")), None)
+        if i < 2 or rib is None:
+            continue
+        rv_ = rib.vertices()
+        te_end = max(rv_, key=lambda v: v.X - 0.01 * v.Z)  # TE end, bottom
+        p_ = ve.at(te_end)
+        if not (e0[0] - 1 <= p_[0] <= e0[2] + 1):
+            continue
+        rise = m.WASH_IN_LEFT * s_ / st_l[-1]
+        sh.text(p_[0], p_[1] + 7, f"osa {nums[rib.label]}", size=TXT_S, bold=True, anchor="middle")
+        sh.text(p_[0], p_[1] + 10.5, f"johtoreuna +{fmt(rise)} mm", size=TXT_S, anchor="middle")
+    sh.text(RX0, e0[3] + 14, "lyhyt katkoviiva = johtoreuna ilman wash-iniä; nostot = shimmit johtoreunan alla "
+            "(taulukko SHIMMIT)", size=TXT_S)
 
     check_layout(sh)
     OUT_DIR.mkdir(exist_ok=True)

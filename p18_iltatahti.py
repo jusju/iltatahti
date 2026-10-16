@@ -149,8 +149,8 @@ RUDDER_TURN = 2.0  # degrees, rudder turned to the left (left turn) about the hi
 RUDDER_HINGE_GAP = 0.1  # hinge clearance to the stick side, so the turned rudder stays clear
 RUDDER_STAB_GAP = 0.2  # clearance between the rudder root strip and the stab
 
-# wash-in: left wing TE this much lower at the tip (linear from the root, twist
-# about the LE spar). Built flat with shims under the LE at the ribs.
+# wash-in: left wing LE this much higher at the tip (linear from the root, twist
+# about the TE spar). Built with the TE flat on the board and shims under the LE.
 WASH_IN_LEFT = 4.0
 
 # thrust line (prop shaft): set in pukki.txt, the mount's bearing is built to it
@@ -508,19 +508,19 @@ def wing_parts():
             slope = (-1 if lift > 0 else 1) * RIB_TAB_SLOPE
             parts.append(FlatPart(f"wing_{side}_{name}_spar", spar, SHEET_T, plane,
                                   turns=[(tuple(corner), tuple(d), slope)]))
-        # wash-in (left wing): every rib turns about the LE spar so that the TE drops
-        # linearly to WASH_IN_LEFT at the tip rib; the TE spar tilts with them
+        # wash-in (left wing): every rib turns about the TE spar so that the LE rises
+        # linearly to WASH_IN_LEFT at the tip rib; the LE spar tilts with them
         wash = WASH_IN_LEFT if side == "L" else 0.0
         le_c = RIB_STEP_LE - seat + spar_style()[0] / 2  # LE spar center line (chordwise)
         te_c = RIB_STEP_TE + seat - spar_style()[0] / 2
         arm = RIB_TAB_CORNER_TE[0] - RIB_TAB_CORNER_LE[0]
-        le_axis = Vector(RIB_TAB_CORNER_LE[0], 0, 0) + up * (RIB_TAB_CORNER_LE[1] - sink)  # rib / LE spar contact
-        sgn_rib = -1 if d.cross(Vector(1, 0, 0)).Z > 0 else 1  # rotation sign that lowers the TE
+        te_axis = Vector(RIB_TAB_CORNER_TE[0], 0, 0) + up * (RIB_TAB_CORNER_TE[1] - sink)  # rib / TE spar contact
+        sgn_rib = -1 if d.cross(Vector(1, 0, 0)).Z > 0 else 1  # nose-up rotation sign (LE up about the TE)
         if wash:
-            te_root = Vector(te_c, 0, 0) + mid + d * s0
+            le_root = Vector(le_c, 0, 0) + mid + d * s0
             phi = degrees(atan(wash / (stations[-1] - s0)))
-            sgn_te = 1 if Vector(1, 0, 0).cross(d).Z < 0 else -1
-            parts[-1].turns.append((tuple(te_root), (1, 0, 0), sgn_te * phi))
+            sgn_up = -1 if Vector(1, 0, 0).cross(d).Z < 0 else 1  # rotation about +X that raises the tip
+            parts[-2].turns.append((tuple(le_root), (1, 0, 0), sgn_up * phi))
         # ribs at the notches: root rib, full rib, then plain ribs
         for i, s in enumerate(stations):
             num = root if i == 0 else full if i == 1 else ribs.pop(0)
@@ -531,12 +531,12 @@ def wing_parts():
                                       rib_plane(o, Vector(0, 0, 1))))
                 continue
             if wash:
-                # the twisted rib meets the straight LE spar at a small angle: clear its seat
-                drop = wash * (s - s0) / (stations[-1] - s0)
-                twist = atan(drop / arm)
+                # the twisted rib meets the straight TE spar at a small angle: clear its seat
+                rise = wash * (s - s0) / (stations[-1] - s0)
+                twist = atan(rise / arm)
                 prof = poly_face(spar_seat_cut(dxf_poly(num), clear=4.2 * tan(twist) + 0.02))
                 rib = FlatPart(f"wing_{side}_rib{i}_{num}", prof, SHEET_T, rib_plane(d * s, up))
-                rib.turns.append((tuple(le_axis), tuple(d), sgn_rib * degrees(twist)))
+                rib.turns.append((tuple(te_axis), tuple(d), sgn_rib * degrees(twist)))
             else:
                 rib = FlatPart(f"wing_{side}_rib{i}_{num}", rib_face(num), SHEET_T, rib_plane(d * s, up))
             parts.append(rib)
@@ -549,6 +549,10 @@ def wing_parts():
         cs = polygon_profile([(c0, 0), (length_cs, 0), (length_cs, h), (c0 + h * tan(dih), h)])
         o = Vector(CENTER_SPAR_X, 0, 0) + up * CENTER_SPAR_SEAT
         parts.append(FlatPart(f"wing_{side}_center_spar", cs, SHEET_T, strip_plane(o, d, up)))
+        if wash:  # the ribs rise at the center spar too: tilt it with them (zero at its root)
+            k = (RIB_TAB_CORNER_TE[0] - CENTER_SPAR_X) / arm  # rise here / rise at the LE
+            phi_c = degrees(atan(wash * k / (stations[-1] - s0)))
+            parts[-1].turns.append((tuple(o), (1, 0, 0), sgn_up * phi_c))
         # saddle legs along the airflow, against the stick side next to the root rib.
         # Their notch is the rib end tab: the LE / TE spar is glued into it.
         y = sgn * (STICK_W + SHEET_T) / 2
