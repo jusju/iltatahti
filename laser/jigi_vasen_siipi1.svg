@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="347mm" height="83mm" viewBox="0 0 347 83">
+  <title>Vasemman siiven jigi 1: balsa 6 mm, pala 347 × 83 mm</title>
+  <g id="engrave" inkscape:groupmode="layer" inkscape:label="kaiverrus">
+    <path style="fill:#000000;fill-rule:evenodd;stroke:none" d="M 129.700,63.700 L 129.060,63.700 L 129.060,61.700 L 129.060,59.700 L 129.700,59.700 L 129.700,61.700 L 129.700,63.700 Z"><title>1</title></path>
+    <path style="fill:#000000;fill-rule:evenodd;stroke:none" d="M 129.700,36.600 L 127.940,36.600 L 127.300,36.600 L 127.300,35.960 L 127.300,34.920 L 127.300,34.600 L 127.300,34.280 L 129.060,34.280 L 129.060,33.240 L 127.300,33.240 L 127.300,32.600 L 129.060,32.600 L 129.700,32.600 L 129.700,33.240 L 129.700,34.280 L 129.700,34.600 L 129.700,34.920 L 127.940,34.920 L 127.940,35.960 L 129.700,35.960 L 129.700,36.600 Z"><title>2</title></path>
+    <path style="fill:#000000;fill-rule:evenodd;stroke:none" d="M 53.060,20.500 L 51.300,20.500 L 51.300,19.860 L 53.060,19.860 L 53.060,18.820 L 51.300,18.820 L 51.300,18.500 L 51.300,18.180 L 51.300,17.140 L 51.300,16.500 L 51.940,16.500 L 53.700,16.500 L 53.700,17.140 L 51.940,17.140 L 51.940,18.180 L 53.700,18.180 L 53.700,18.500 L 53.700,18.820 L 53.700,19.860 L 53.700,20.500 L 53.060,20.500 Z"><title>5</title></path>
+    <path style="fill:#000000;fill-rule:evenodd;stroke:none" d="M 53.060,8.500 L 51.940,8.500 L 51.300,8.500 L 51.300,7.860 L 51.300,6.820 L 51.300,6.500 L 51.300,6.180 L 51.300,5.140 L 51.300,4.500 L 51.940,4.500 L 53.700,4.500 L 53.700,5.140 L 51.940,5.140 L 51.940,6.180 L 53.700,6.180 L 53.700,6.500 L 53.700,6.820 L 53.700,7.860 L 53.700,8.500 L 53.060,8.500 Z M 51.940,7.860 L 53.060,7.860 L 53.060,6.820 L 51.940,6.820 L 51.940,7.860 Z"><title>6</title></path>
+    <path style="fill:#000000;fill-rule:evenodd;stroke:none" d="M 155.750,20.500 L 155.110,20.500 L 155.110,18.500 L 155.110,17.140 L 153.350,17.140 L 153.350,16.500 L 155.110,16.500 L 155.750,16.500 L 155.750,17.140 L 155.750,18.500 L 155.750,20.500 Z"><title>7</title></path>
+    <path style="fill:#000000;fill-rule:evenodd;stroke:none" d="M 300.501,63.700 L 298.741,63.700 L 298.741,63.060 L 300.501,63.060 L 300.501,62.020 L 298.741,62.020 L 298.741,61.380 L 300.501,61.380 L 300.501,60.340 L 298.741,60.340 L 298.741,59.700 L 300.501,59.700 L 301.141,59.700 L 301.141,60.340 L 301.141,61.380 L 301.141,61.700 L 301.141,62.020 L 301.141,63.060 L 301.141,63.700 L 300.501,63.700 Z"><title>3</title></path>
+    <path style="fill:#000000;fill-rule:evenodd;stroke:none" d="M 300.501,36.600 L 300.501,34.920 L 298.741,34.920 L 298.741,34.600 L 298.741,34.280 L 298.741,32.600 L 299.381,32.600 L 299.381,34.280 L 300.501,34.280 L 300.501,32.600 L 301.141,32.600 L 301.141,34.280 L 301.141,34.600 L 301.141,34.920 L 301.141,36.600 L 300.501,36.600 Z"><title>4</title></path>
+  </g>
+  <g id="cut" inkscape:groupmode="layer" inkscape:label="leikkaus">
+    <g id="osa1"><title>1: johtoreunan seinä</title>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 254.391,57.361 L 254.391,67.500 L 248.391,67.500 L 248.391,80.000 L 219.752,80.000"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 218.752,80.000 L 193.044,80.000 L 193.044,75.000 L 187.044,75.000 L 187.044,80.000 L 171.474,80.000"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 170.474,80.000 L 131.696,80.000 L 131.696,75.000 L 125.696,75.000 L 125.696,80.000 L 123.196,80.000"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 122.196,80.000 L 70.348,80.000 L 70.348,75.000 L 69.667,75.000"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 68.667,75.000 L 64.348,75.000 L 64.348,80.000 L 16.639,80.000"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 15.639,80.000 L 9.000,80.000 L 9.000,67.500 L 3.000,67.500 L 3.000,55.000 L 22.639,55.000"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 23.639,55.000 L 80.917,55.000"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 81.917,55.000 L 139.196,55.000"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 140.196,55.000 L 197.474,55.000"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 198.474,55.000 L 254.391,55.000 L 254.391,56.361"/>
+    </g>
+    <g id="osa2"><title>2: jättöreunan seinä</title>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 254.391,30.261 L 254.391,40.400 L 248.391,40.400 L 248.391,52.900 L 219.752,52.900"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 218.752,52.900 L 193.044,52.900 L 193.044,47.900 L 187.044,47.900 L 187.044,52.900 L 171.474,52.900"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 170.474,52.900 L 131.696,52.900 L 131.696,47.900 L 125.696,47.900 L 125.696,52.900 L 123.196,52.900"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 122.196,52.900 L 70.348,52.900 L 70.348,47.900 L 69.667,47.900"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 68.667,47.900 L 64.348,47.900 L 64.348,52.900 L 16.639,52.900"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 15.639,52.900 L 9.000,52.900 L 9.000,40.400 L 3.000,40.400 L 3.000,27.900 L 22.639,27.900"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 23.639,27.900 L 80.917,27.900"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 81.917,27.900 L 139.196,27.900"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 140.196,27.900 L 197.474,27.900"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 198.474,27.900 L 254.391,27.900 L 254.391,29.261"/>
+    </g>
+    <g id="osa5"><title>5: tukipala 1</title>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 90.779,18.521 L 90.779,20.800 L 96.779,20.800 L 96.779,15.800 L 103.000,15.800 L 103.000,25.800 L 73.500,25.800"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 72.500,25.800 L 13.500,25.800"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 12.500,25.800 L 3.000,25.800 L 3.000,15.800 L 9.221,15.800 L 9.221,20.800 L 15.221,20.800 L 15.221,15.800 L 32.500,15.800"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 33.500,15.800 L 90.779,15.800 L 90.779,17.521"/>
+    </g>
+    <g id="osa6"><title>6: tukipala 2</title>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 90.779,6.521 L 90.779,8.800 L 96.779,8.800 L 96.779,3.800 L 103.000,3.800 L 103.000,13.800 L 73.500,13.800"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 72.500,13.800 L 13.500,13.800"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 12.500,13.800 L 3.000,13.800 L 3.000,3.800 L 9.221,3.800 L 9.221,8.800 L 15.221,8.800 L 15.221,3.800 L 32.500,3.800"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 33.500,3.800 L 90.779,3.800 L 90.779,5.521"/>
+    </g>
+    <g id="osa7"><title>7: tukipala 3</title>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 192.829,18.521 L 192.829,20.800 L 198.829,20.800 L 198.829,15.800 L 205.050,15.800 L 205.050,25.800 L 175.550,25.800"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 174.550,25.800 L 115.550,25.800"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 114.550,25.800 L 105.050,25.800 L 105.050,15.800 L 111.271,15.800 L 111.271,20.800 L 117.271,20.800 L 117.271,15.800 L 134.550,15.800"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 135.550,15.800 L 192.829,15.800 L 192.829,17.521"/>
+    </g>
+    <g id="osa3"><title>3: tyven seinä</title>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 338.000,58.360 L 338.000,67.500 L 344.000,67.500 L 344.000,80.000 L 316.360,80.000"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 315.360,80.000 L 260.081,80.000"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 259.081,80.000 L 256.441,80.000 L 256.441,67.500 L 262.441,67.500 L 262.441,55.000 L 284.081,55.000"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 285.081,55.000 L 338.000,55.000 L 338.000,57.360"/>
+    </g>
+    <g id="osa4"><title>4: kärjen seinä</title>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 338.000,31.260 L 338.000,40.400 L 344.000,40.400 L 344.000,52.900 L 316.360,52.900"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 315.360,52.900 L 260.081,52.900"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 259.081,52.900 L 256.441,52.900 L 256.441,40.400 L 262.441,40.400 L 262.441,27.900 L 284.081,27.900"/>
+      <path style="fill:none;stroke:#ff0000;stroke-width:1px;vector-effect:non-scaling-stroke;-inkscape-stroke:hairline" d="M 285.081,27.900 L 338.000,27.900 L 338.000,30.260"/>
+    </g>
+  </g>
+</svg>
