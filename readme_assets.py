@@ -5,6 +5,7 @@ Writes
   docs/iltatahti_3d.svg          rotating 3D model (animated SVG, plays on GitHub)
   docs/jigi_kokoaminen.svg       the left wing jig put together part by part (animated)
   docs/jigi_kaytto.svg           the left wing built on the jig part by part (animated)
+  docs/jigi_tarkastus.svg        the whole-model alignment jig put together, numbered (animated)
   docs/iltatahti_iso.svg         the 3D view at the top of the building drawing (hidden edges dashed)
   docs/rakennuspiirustus.png     the A0 building drawing as a picture
   step/iltatahti_p18.stl         whole model as STL (GitHub shows it in an interactive 3D viewer)
@@ -391,31 +392,48 @@ def _split(lines, earlier, cell=0.3):
     return old, new
 
 
-def step_svg(base, steps, path: Path, title: str, lift=40.0, seconds=1.4, width=900, hold=3):
+def _label_xy(point, center, lift=0.0):
+    """Where a 3D point lands in _project's 2D frame: project a tiny cube there."""
+    from build123d import Box
+    cube = Location((point[0], point[1], point[2] + lift)) * Box(0.2, 0.2, 0.2)
+    pts = [p for l in _project([cube], center) for p in l]
+    return (sum(p[0] for p in pts) / len(pts), sum(p[1] for p in pts) / len(pts))
+
+
+def step_svg(base, steps, path: Path, title: str, lift=40.0, seconds=1.4, width=900, hold=3, stills=None):
     """Animated SVG: `base` shapes (grey) stay; every step adds shapes (orange), first
-    lifted `lift` mm above their place, then in place; earlier steps are dark."""
+    lifted `lift` mm above their place, then in place; earlier steps are dark. A step
+    is (shapes, text) or (shapes, text, (3D point, label)): the label (a part number)
+    is drawn at the point, orange for the new part, dark once it is in place.
+    stills: a directory for one still picture per step (the part in place) plus the
+    finished one: vaihe01.svg ... valmis.svg; returns [(file, step text)]."""
+    labels_ = [st[2] if len(st) > 2 else None for st in steps]
+    steps = [st[:2] for st in steps]
     allshapes = base + [s for new, _ in steps for s in new]
     center = Compound(allshapes).bounding_box().center()
     up = Location((0, 0, lift))
-    frames = []  # (layers {color key: lines}, step text)
+    frames = []  # (layers {color key: lines}, step text, [(xy, label, new?)])
     placed = []
+    lab_xy = [None if l is None else (_label_xy(l[0], center), _label_xy(l[0], center, lift), l[1]) for l in labels_]
     base_lines = _project(base, center) if base else []
     for k, (new, text) in enumerate(steps, 1):
         before = _project(base + placed, center) if base or placed else []
         _, placed_only = _split(before, base_lines)
-        for shapes in ([s.moved(up) for s in new], new):
+        done_labels = [(xy, t, False) for xy, _, t in (x for x in lab_xy[:k - 1] if x)]
+        for li, shapes in enumerate(([s.moved(up) for s in new], new)):
             lines = _project(base + placed + shapes, center)
             old, fresh = _split(lines, before)
             o_, b_ = _split(old, placed_only)  # old lines: earlier steps, the rest is the base (jig)
             if not base:
                 b_, o_ = [], old
-            frames.append(({"base": b_, "old": o_, "new": fresh}, f"{k}/{len(steps)}  {text}"))
+            labs = done_labels + ([(lab_xy[k - 1][1 - li], lab_xy[k - 1][2], True)] if lab_xy[k - 1] else [])
+            frames.append(({"base": b_, "old": o_, "new": fresh}, f"{k}/{len(steps)}  {text}", labs))
         placed += new
     done = _project(base + placed, center)
     b_, o_ = _split(done, base_lines) if base else ([], done)
-    frames += [({"base": b_, "old": o_, "new": []}, "Valmis")] * hold
-    ext_x = max(abs(x) for f, _ in frames for ls in f.values() for l in ls for x, _ in l)
-    ext_y = max(abs(y) for f, _ in frames for ls in f.values() for l in ls for _, y in l)
+    frames += [({"base": b_, "old": o_, "new": []}, "Valmis", [(xy, t, False) for xy, _, t in (x for x in lab_xy if x)])] * hold
+    ext_x = max(abs(x) for f, _, _ in frames for ls in f.values() for l in ls for x, _ in l)
+    ext_y = max(abs(y) for f, _, _ in frames for ls in f.values() for l in ls for _, y in l)
     sc = (width / 2 - 20) / ext_x
     height = int(2 * ext_y * sc + 80)
     cx, cy = width / 2, height / 2 + 22
@@ -428,9 +446,9 @@ def step_svg(base, steps, path: Path, title: str, lift=40.0, seconds=1.4, width=
            f'<rect width="{width}" height="{height}" rx="10" fill="#ffffff"/>',
            f'<text x="18" y="28" font-size="17" font-weight="bold" fill="#1d2733">{title}</text>']
     widths = {"base": 0.7, "old": 0.9, "new": 1.6}
-    for i, (layers, text) in enumerate(frames):
-        g = [f'<g class="{"f f0" if i == 0 else "f"}" style="animation-delay:{seconds * i:.2f}s">',
-             f'<text x="18" y="50" font-size="14" fill="{STEP_COLORS["new"] if text != "Valmis" else "#1f9d4c"}">'
+    bodies = []
+    for i, (layers, text, labs) in enumerate(frames):
+        g = [f'<text x="18" y="50" font-size="14" fill="{STEP_COLORS["new"] if text != "Valmis" else "#1f9d4c"}">'
              f'{text}</text>']
         for key in ("base", "old", "new"):
             d = []
@@ -440,10 +458,34 @@ def step_svg(base, steps, path: Path, title: str, lift=40.0, seconds=1.4, width=
                     d.append(f"M{pts[0][0]:.1f} {pts[0][1]:.1f}" + "".join(f"L{x:.1f} {y:.1f}" for x, y in pts[1:]))
             if d:
                 g.append(f'<path stroke="{STEP_COLORS[key]}" stroke-width="{widths[key]}" d="{"".join(d)}"/>')
-        g.append("</g>")
-        out.append("".join(g))
+        for (lx, ly), t, is_new in labs:
+            col = STEP_COLORS["new"] if is_new else STEP_COLORS["old"]
+            px, py = cx + lx * sc, cy - ly * sc
+            r_ = 4 + 3.2 * len(t)
+            g.append(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="{r_:.1f}" fill="#ffffff" stroke="{col}" stroke-width="1.2"/>'
+                     f'<text x="{px:.1f}" y="{py + 4:.1f}" font-size="11" font-weight="bold" text-anchor="middle" '
+                     f'fill="{col}">{t}</text>')
+        bodies.append("".join(g))
+        out.append(f'<g class="{"f f0" if i == 0 else "f"}" style="animation-delay:{seconds * i:.2f}s">{bodies[-1]}</g>')
     out.append("</svg>")
     path.write_text("\n".join(out) + "\n")
+    written = []
+    if stills:
+        stills.mkdir(parents=True, exist_ok=True)
+        for old in stills.glob("*.svg"):
+            old.unlink()
+        head = (f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">'
+                "<style>path{fill:none;stroke-linejoin:round;stroke-linecap:round}text{font-family:sans-serif}</style>"
+                f'<rect width="{width}" height="{height}" rx="10" fill="#ffffff"/>'
+                f'<text x="18" y="28" font-size="17" font-weight="bold" fill="#1d2733">{title}</text>')
+        for k in range(len(steps)):
+            f = stills / f"vaihe{k + 1:02d}.svg"
+            f.write_text(head + bodies[2 * k + 1] + "</svg>\n")  # the part in place
+            written.append((f, frames[2 * k + 1][1]))
+        f = stills / "valmis.svg"
+        f.write_text(head + bodies[-1] + "</svg>\n")
+        written.append((f, "Valmis"))
+    return written
 
 
 def jig_animations():
@@ -488,6 +530,48 @@ def jig_animations():
     step_svg(sol, steps, DOCS / "jigi_kaytto.svg", "Vasemman siiven rakentaminen jigillä")
 
 
+def label_point(solid, n):
+    """A point just above the part's own top edge: across pieces at 3/4 of their width,
+    pieces along the model at 1/3 or 2/3 of their length (alternating, so neighbours
+    do not share a spot)."""
+    from build123d import Box
+    bb = solid.bounding_box()
+    if bb.size.Y >= bb.size.X:
+        x, y = bb.center().X, bb.min.Y + 0.75 * bb.size.Y
+    else:
+        f = 1 / 3 if n % 2 else 2 / 3
+        x, y = bb.min.X + f * bb.size.X, bb.center().Y
+    top = (solid & (Location((x, y, bb.center().Z)) * Box(1, 1, bb.size.Z + 10))).bounding_box().max.Z
+    return (x, y, top + 5)
+
+
+def alignment_animation():
+    import lennokin_tarkastusjigi as tj
+
+    b = tj.build()
+    names = [name for name, *_ in b["parts"]]
+    how = {"kisko": "pöydälle, lovet ylös",
+           "potkurin": "kiskojen etupäiden loviin, keskilovi rungolle (sivuvedon verran vinossa)",
+           "rungon": "kiskojen yläloviin, lovi ylös runkotikulle",
+           "siiven": "kiskojen loviin, keskilovi rungolle",
+           "vakaajan": "kiskojen loviin, keskilovi rungolle"}
+    steps = []
+    for n, (name, solid) in enumerate(zip(names, b["jig"]), 1):
+        key = next(k for k in sorted(how, key=len, reverse=True) if name.startswith(k))
+        steps.append(([solid], f"osa {n}, {name}: {how[key]}", (label_point(solid, n), str(n))))
+    steps.append((b["aircraft"], "Lennokki: runkotikku kannattimien 4 ja 5 loviin"))
+    steps.append(([b["prop"]], "Potkuri vaaka-asentoon: rako levyyn 3 kummassakin kärjessä 5 mm"))
+    stills = step_svg([], steps, DOCS / "jigi_tarkastus.svg", "Lennokin tarkastusjigin kokoaminen", lift=30.0,
+                      stills=DOCS / "jigi_tarkastus_vaiheet")
+    # README: the step by step pictures, two per row, between the markers
+    rows = ["| | |", "|---|---|"]
+    cells = [f'<img src="{f.relative_to(HERE).as_posix()}" alt="{t}" width="430"><br>{t}' for f, t in stills]
+    cells += [""] * (len(cells) % 2)
+    rows += [f"| {a} | {b} |" for a, b in zip(cells[::2], cells[1::2])]
+    text = README.read_text(encoding="utf-8")
+    README.write_text(fill(text, "tarkastus-vaiheet", "\n".join(rows)), encoding="utf-8")
+
+
 def light_model(simplify=0.25):
     """The model again with every balsa outline simplified (README 3D viewer only):
     far fewer triangles, no visible difference at screen size."""
@@ -525,6 +609,7 @@ def main():
 
     iso_svg(allp + [prop], DOCS / "iltatahti_iso.svg")
     jig_animations()
+    alignment_animation()
     light = light_model()
     rotating_svg(light + [prop], DOCS / "iltatahti_3d.svg")
     drawing_png(DOCS / "rakennuspiirustus.png")
@@ -537,7 +622,7 @@ def main():
     text = fill(text, "paino", budget_md(rows, groups, extra))
     README.write_text(text, encoding="utf-8")
     for f in (DOCS / "iltatahti_3d.svg", DOCS / "iltatahti_iso.svg", DOCS / "jigi_kokoaminen.svg",
-              DOCS / "jigi_kaytto.svg", DOCS / "rakennuspiirustus.png", m.STEP_DIR / f"{m.MODEL_ID}.stl"):
+              DOCS / "jigi_kaytto.svg", DOCS / "jigi_tarkastus.svg", DOCS / "rakennuspiirustus.png", m.STEP_DIR / f"{m.MODEL_ID}.stl"):
         print(f"{f.relative_to(HERE)}: {f.stat().st_size / 1024:.0f} kB")
     print("README.md: tekniset tiedot, sääntötarkistus ja painobudjetti päivitetty")
 

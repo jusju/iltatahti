@@ -242,6 +242,9 @@ def laser(parts, stem="jigi_vasen_siipi", jig_id=JIG_ID, what="vasemman siiven j
     try:
         items = [(n, name, tl.normalize(poly)) for n, (name, poly, *_) in enumerate(parts, 1)]
         sheets = tl.nest(items, edge=EDGE, gap=GAP, x_step=10.0)
+        for old in LASER_DIR.glob(f"{stem}*.svg"):  # no stale board files left to cut
+            if old.stem[len(stem):].isdigit():
+                old.unlink()
         tl.TAB_COUNT.clear()
         files = []
         for i, sheet in enumerate(sheets, 1):
@@ -389,14 +392,15 @@ def main(viewer=True):
     print(f"Sillat (1 mm): vähintään {min(tl.TAB_COUNT)} / osa")
 
     STEP_FILE.parent.mkdir(exist_ok=True)
-    jig = Compound(children=solids, label="jigi_vasen_siipi")
+    src = Path(__file__).name  # shown in the OCP viewer, so it is clear where the model comes from
+    jig = Compound(children=solids, label=f"{src}: vasemman siiven jigi")
     export_step(jig, STEP_FILE)
     print(f"3D: {STEP_FILE.relative_to(HERE)}")
     if viewer:
         try:
             from ocp_vscode import Camera, show
 
-            show(jig, names=["jigi"], reset_camera=Camera.RESET)
+            show(jig, names=[f"{src}: vasemman siiven jigi"], reset_camera=Camera.RESET)
         except Exception as e:  # viewer not running
             print(f"OCP viewer ei ole käytettävissä: {e}")
 

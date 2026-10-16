@@ -646,15 +646,17 @@ US_TEXTS = [
 # --------------------------------------------------------------------------
 # Helpers for the trim details
 # --------------------------------------------------------------------------
-def prop_solid(mount_bb):
+def prop_solid(mount_bb, horizontal=False):
     """Commercial 6 inch two blade plastic prop on the thrust line, only for the
-    pictures (not a model part): THRUST_DOWN / THRUST_LEFT as specified."""
+    pictures (not a model part): THRUST_DOWN / THRUST_LEFT as specified. Blades up and
+    down, or with horizontal=True level (across, in the prop disc)."""
     a, b = radians(m.THRUST_LEFT), radians(m.THRUST_DOWN)
     fwd = Vector(-cos(a) * cos(b), -sin(a) * cos(b), -sin(b))
     # 4 mm in front of the bearing's front end, on the thrust line
     piv = Vector(m.STICK_X0 - m.MOUNT_POCKET_BOTTOM + m.pukki.BEARING_Z0, 0, m.MOUNT_THRUST_Z)
     hub_c = piv + fwd * 4.0
-    pl = Plane(origin=hub_c, x_dir=(0, 0, 1), z_dir=fwd)
+    across = Vector(0, 0, 1).cross(fwd).normalized()  # level, in the prop disc
+    pl = Plane(origin=hub_c, x_dir=across if horizontal else (0, 0, 1), z_dir=fwd)
     r = m.RULE_PROP_DIA / 2
     parts = [pl.location * Cylinder(3.5, 7)]
     blade = m.polygon_profile([(3, -5), (25, -9), (55, -8.5), (r - 2, -5), (r, -1), (r - 2, 3.5),

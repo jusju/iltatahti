@@ -411,3 +411,113 @@ viereen. Vahaa tai teippaa haarukat ja ristikko ennen liimausta, jotta siipi ei 
 
 Animaatiot ja jigi päivittyvät mallin mukana, kun ajat
 `.venv/bin/python vasemman_siiven_jigi.py` ja `.venv/bin/python readme_assets.py`.
+
+## Lennokin tarkastusjigi
+
+Valmis kone lukitaan tarkastusjigiin runkotikusta. Jigillä tarkistetaan:
+
+1. potkurin sivuveto;
+2. korkeusvakaajan tiltti ja se, että vakaaja on suora ja keskellä;
+3. siiven wash-in ja se, että siivet ovat muuten suorat;
+4. siiven asetuskulma;
+5. se, että vasen siipi on 1 cm oikeaa pidempi (245 mm / 235 mm rimoja pitkin).
+
+Jigin tekee [lennokin_tarkastusjigi.py](lennokin_tarkastusjigi.py), ja jigin 9 osaa
+leikataan samasta 6 mm:n balsalaudasta kuin siipijigi. Osat mahtuvat yhdelle
+1886 × 83 mm:n palalle. Leikkaustiedosto on
+[laser/jigi_tarkastus1.svg](laser/jigi_tarkastus1.svg), ja jokaiseen osaan on
+kaiverrettu osanumero 1–9 ja teksti JIGI-TARKASTUS. Leikkaustiedostossa on vain jigin
+osat, koska lennokin omat osat on jo leikattu tiedostoista `laser/osat2mm-*.svg` ja
+`laser/osat4mm-*.svg`. OCP CAD Viewerissä jigi ja tarkistettava kone näkyvät nimillä
+`lennokin_tarkastusjigi.py: …`.
+
+**Mittausperiaate:** jokainen vertailureuna on suora ja tasan 5 mm tarkastettavasta
+rakenteesta. Työnnä 5 mm:n mittapala tai 5 mm:n poranvarsi rakoon ja liu'uta sitä koko
+matkan. Jos rako on joka kohdassa 5 mm, rakenne on suora ja oikeassa kulmassa.
+
+### Tarkastaminen
+
+Paina runkotikku rungon kannattimien 4 ja 5 loviin. Lovet ovat tiukat.
+
+| Tarkistus | Oikein, kun | 1 mm virhe raossa tarkoittaa |
+|---|---|---|
+| Sivuveto 2° vasemmalle | potkuri vaaka-asennossa: rako potkurin vertailulevyyn (osa 3) on 5 mm molempien lapojen kärjissä | ≈ 0,38° (kärkien raoissa 1 mm ero) |
+| Siivet suorat ja V-kulma | rako 5 mm johtoreunan ja jättöreunan vertailuun (osat 6 ja 7) koko kärkivälillä | kiero tai taipunut rima |
+| Vasen siipi 1 cm pidempi | siiven rimojen kärjet ovat vertailujen 6 ja 7 päiden tasalla molemmissa päissä. Vertailujen vasen pää on 243 mm ja oikea 234 mm keskiviivasta. | siipi liian lyhyt tai pitkä, tai ei keskellä |
+| Wash-in (vasen siipi) | rako 5 mm vasemman johtoreunan vertailuun koko matkalla; vertailu nousee kärkeen 4 mm | wash-in liian suuri tai pieni |
+| Asetuskulma | rako 5 mm sekä johtoreunassa että jättöreunassa | ≈ 0,7° (raot 81,5 mm:n päässä toisistaan) |
+| Korkeusvakaaja suora, tiltti ±5 mm | rako 5 mm molempiin vakaajan vertailuihin (osat 8 ja 9) koko kärkivälillä; vertailujen vasen pää on 5 mm korkeammalla ja oikea 5 mm matalammalla kuin keskikohta | vakaaja kiero tai tiltti väärä |
+| Korkeusvakaaja keskellä | vakaajan rimojen kärjet ovat vertailujen 8 ja 9 päiden tasalla (±120 mm) | vakaaja sivussa |
+
+Potkurin vertailulevy on potkurilevyn suuntainen eli käännetty 2° sivuvedon mukaan. Jos
+vasemman ja oikean lavan kärjen raot ovat yhtä suuret, sivuveto on oikein. Alavetoa (0°)
+jigi ei tarkista.
+
+**Validointi 3D-mallilla:** koko kone potkureineen on asetettu mallissa jigin
+kannattimiin, ja raot on mitattu.
+
+| Mitattu | Tulos |
+|---|---|
+| Raot siiven ja vakaajan vertailuihin | 4,99–5,00 mm koko matkalla |
+| Potkurin lapojen kärjet (vaaka-asennossa) | vasen 4,99 mm, oikea 4,99 mm |
+| Oikean siiven asetuskulma | 1,98° |
+| Vasemman siiven asetuskulma | 2,44° tyvessä (y −40), 4,66° kärjessä (y −230) wash-inin vuoksi |
+| Vakaajan vertailun päät | ±5,00 mm |
+| Siiven rimojen kärjet ja vertailujen päät | johtoreuna −243,1 / +233,7 mm, jättöreuna −243,6 / +233,7 mm, eli vasen siipi on vaakaprojektiona 9,4–9,9 mm pidempi (rimoja pitkin 10 mm) |
+| Koneen kosketus jigiin | vain runkotikku kannattimien tiukassa sovitteessa |
+
+Vertailureunat ja potkurin vertailulevy lasketaan suoraan koneen mallista ja
+[pukki.txt](pukki.txt):n sivuvedosta. Jos jokin arvo muuttuu, aja
+`.venv/bin/python lennokin_tarkastusjigi.py` ja leikkaa muuttuneet osat uudelleen.
+
+### Tarkastusjigin kokoaminen
+
+<p align="center">
+  <img src="docs/jigi_tarkastus.svg" alt="Lennokin tarkastusjigin kokoaminen numeroiduista osista" width="900">
+</p>
+
+Animaatio toistuu. Jokainen osa näkyy ensin oranssina 30 mm paikkansa yläpuolella ja
+asettuu sitten paikalleen. Osan päällä oleva numero on sama kuin osaan kaiverrettu
+numero. Kokoa jigi tasaisella pöydällä animaation järjestyksessä. Vasen ja oikea
+tarkoittavat lentäjän vasenta ja oikeaa, ja nokka osoittaa potkurin vertailulevyn suuntaan.
+
+1. **Kiskot 1 (vasen) ja 2 (oikea)** pöydälle 60 mm:n päähän toisistaan, lovet ylös.
+   Kiskojen etupäissä on lovi potkurin vertailulevylle.
+2. **Potkurin vertailulevy 3** kiskojen etupäiden loviin niin, että keskilovi tulee
+   rungon kohdalle. Levy on sivuvedon verran vinossa, ja sen vasen pää on hieman
+   kauempana nokasta.
+3. **Rungon kannattimet 4 (etu) ja 5 (taka)** kiskojen yläloviin niin, että runkotikun
+   lovi on ylhäällä keskellä. Kannattimet eivät ulotu pöytään asti.
+4. **Siiven vertailut 6 (johtoreuna) ja 7 (jättöreuna)** kiskojen loviin, keskilovi
+   rungon kohdalle. Pidempi pää tulee vasemmalle, koska vasen siipi on 1 cm pidempi.
+   Johtoreunan vertailussa vasen pää nousee myös jyrkemmin (wash-in).
+5. **Korkeusvakaajan vertailut 8 (johtoreuna) ja 9 (jättöreuna)** kiskojen takapään
+   loviin. Korkeampi pää tulee vasemmalle, koska vakaajan vasen kärki on 5 mm ylempänä.
+6. Liimaa liitokset ja tarkista, että jigi seisoo pöydällä keikkumatta.
+7. **Lennokki:** paina runkotikku kannattimien 4 ja 5 loviin.
+8. **Potkuri:** käännä potkuri vaaka-asentoon ja mittaa rako vertailulevyyn 3 kummastakin
+   lavan kärjestä.
+
+#### Vaihe vaiheelta
+
+Sama kokoaminen kuvina. Kussakin kuvassa vaiheen uusi osa on oranssina numeroineen, ja
+jo paikallaan olevat osat ovat tummina. Numero on sama kuin osaan kaiverrettu numero.
+
+<!-- BEGIN:tarkastus-vaiheet -->
+| | |
+|---|---|
+| <img src="docs/jigi_tarkastus_vaiheet/vaihe01.svg" alt="1/11  osa 1, kisko vasen: pöydälle, lovet ylös" width="430"><br>1/11  osa 1, kisko vasen: pöydälle, lovet ylös | <img src="docs/jigi_tarkastus_vaiheet/vaihe02.svg" alt="2/11  osa 2, kisko oikea: pöydälle, lovet ylös" width="430"><br>2/11  osa 2, kisko oikea: pöydälle, lovet ylös |
+| <img src="docs/jigi_tarkastus_vaiheet/vaihe03.svg" alt="3/11  osa 3, potkurin vertailu: kiskojen etupäiden loviin, keskilovi rungolle (sivuvedon verran vinossa)" width="430"><br>3/11  osa 3, potkurin vertailu: kiskojen etupäiden loviin, keskilovi rungolle (sivuvedon verran vinossa) | <img src="docs/jigi_tarkastus_vaiheet/vaihe04.svg" alt="4/11  osa 4, rungon etukannatin: kiskojen yläloviin, lovi ylös runkotikulle" width="430"><br>4/11  osa 4, rungon etukannatin: kiskojen yläloviin, lovi ylös runkotikulle |
+| <img src="docs/jigi_tarkastus_vaiheet/vaihe05.svg" alt="5/11  osa 5, rungon takakannatin: kiskojen yläloviin, lovi ylös runkotikulle" width="430"><br>5/11  osa 5, rungon takakannatin: kiskojen yläloviin, lovi ylös runkotikulle | <img src="docs/jigi_tarkastus_vaiheet/vaihe06.svg" alt="6/11  osa 6, siiven johtoreunan vertailu: kiskojen loviin, keskilovi rungolle" width="430"><br>6/11  osa 6, siiven johtoreunan vertailu: kiskojen loviin, keskilovi rungolle |
+| <img src="docs/jigi_tarkastus_vaiheet/vaihe07.svg" alt="7/11  osa 7, siiven jättöreunan vertailu: kiskojen loviin, keskilovi rungolle" width="430"><br>7/11  osa 7, siiven jättöreunan vertailu: kiskojen loviin, keskilovi rungolle | <img src="docs/jigi_tarkastus_vaiheet/vaihe08.svg" alt="8/11  osa 8, vakaajan johtoreunan vertailu: kiskojen loviin, keskilovi rungolle" width="430"><br>8/11  osa 8, vakaajan johtoreunan vertailu: kiskojen loviin, keskilovi rungolle |
+| <img src="docs/jigi_tarkastus_vaiheet/vaihe09.svg" alt="9/11  osa 9, vakaajan jättöreunan vertailu: kiskojen loviin, keskilovi rungolle" width="430"><br>9/11  osa 9, vakaajan jättöreunan vertailu: kiskojen loviin, keskilovi rungolle | <img src="docs/jigi_tarkastus_vaiheet/vaihe10.svg" alt="10/11  Lennokki: runkotikku kannattimien 4 ja 5 loviin" width="430"><br>10/11  Lennokki: runkotikku kannattimien 4 ja 5 loviin |
+| <img src="docs/jigi_tarkastus_vaiheet/vaihe11.svg" alt="11/11  Potkuri vaaka-asentoon: rako levyyn 3 kummassakin kärjessä 5 mm" width="430"><br>11/11  Potkuri vaaka-asentoon: rako levyyn 3 kummassakin kärjessä 5 mm | <img src="docs/jigi_tarkastus_vaiheet/valmis.svg" alt="Valmis" width="430"><br>Valmis |
+<!-- END:tarkastus-vaiheet -->
+
+| Osa | Nimi | Paikka |
+|---|---|---|
+| 1, 2 | kiskot | pöydälle pituussuuntaan, lovet ylös |
+| 3 | potkurin vertailulevy | kiskojen etupäiden loviin, 5 mm potkurin lapojen taakse |
+| 4, 5 | rungon kannattimet | kiskojen yläloviin, 4 mm:n lovi ylös runkotikulle |
+| 6, 7 | siiven johtoreunan ja jättöreunan vertailu | kiskojen loviin, keskilovi rungolle |
+| 8, 9 | korkeusvakaajan johtoreunan ja jättöreunan vertailu | kiskojen loviin, keskilovi rungolle |
