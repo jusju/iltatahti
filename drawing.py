@@ -1031,7 +1031,7 @@ def make(built=None):
     tv_t = View(allp, (0, 0, 1), (0, 1, 0))   # from above, nose left like the side view
     # front and left view side by side at the bottom left; the tall top view at the
     # right end of the column, under the shim table, where there is more height
-    row_gap, l_right = 14.0, 612.0 - 8  # column M starts at x 612
+    row_gap, l_right = 14.0, 612.0 - 18  # column M starts at x 612 (F reaches a bit left of it)
     t_top = shim_bottom + 14
     w_model = sum(v_.bb[2] - v_.bb[0] for v_ in (tv_f, tv_s, tv_t))
     h_fs = max(v_.bb[3] - v_.bb[1] for v_ in (tv_f, tv_s))
