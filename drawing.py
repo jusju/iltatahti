@@ -516,7 +516,7 @@ def parts_list(flat):
         mt = re.match(r"wing_[LR]_rib(\d)_(\d+)", n)
         if mt:
             k = int(mt[1])
-            return ["Tyvikaari", "Täysikaari (keskiriman lovi)"][k] if k < 2 else "Siipikaari"
+            return ["Tyvikaari (täysi, keskiriman lovi)", "Siipikaari 1 (keskiriman lovi)"][k] if k < 2 else "Siipikaari"
         if "center_spar" in n:
             return "V-kulman keskirima"
         if "leg_front" in n:
@@ -1020,7 +1020,7 @@ def make(built=None):
         rise = m.WASH_IN_LEFT * s_ / st[-1] if i else 0.0
         name = next(p.name for p in flat if p.name.startswith(f"wing_L_rib{i}_"))
         key = min(sugg, key=lambda v: abs(v - rise)) if rise > 0.3 else None
-        srows.append([str(nums[name]), ["Tyvikaari", "Täysikaari"][i] if i < 2 else "Siipikaari",
+        srows.append([str(nums[name]), ["Tyvikaari", "Siipikaari 1"][i] if i < 2 else "Siipikaari",
                       fmt(s_), fmt(rise, 1) if i else "0", sugg[key] if key else "—"])
     table(sh, shx, shy + 11, [11, 24, 27, 20, 46], ["OSA", "KAARI", "KESKELTÄ", "SHIMMI", "ESIM. LEVY"],
           srows, row_h=4.2, size=2.2)

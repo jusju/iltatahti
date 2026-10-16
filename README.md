@@ -121,8 +121,8 @@ Balsaosien budjetti on laskettu 70 kg/m³:n balsalle (raskain sallittu levy): la
 |---:|---|---|---:|
 | 1 | vasen siipi: etureunarima | 245,0×4,0×2 | 0,136 |
 | 2 | vasen siipi: jättöreunarima | 245,0×4,0×2 | 0,136 |
-| 3 | vasen siipi: tyvikaari | 78,1×7,1×2 | 0,036 |
-| 4 | vasen siipi: täysikaari (keskiriman lovi) | 78,7×7,1×2 | 0,058 |
+| 3 | vasen siipi: tyvikaari (täysi, keskiriman lovi) | 78,1×7,1×2 | 0,058 |
+| 4 | vasen siipi: siipikaari 1 (keskiriman lovi) | 78,7×7,1×2 | 0,036 |
 | 5 | vasen siipi: siipikaari 2 | 78,4×7,1×2 | 0,037 |
 | 6 | vasen siipi: siipikaari 3 | 78,0×7,1×2 | 0,037 |
 | 7 | vasen siipi: siipikaari 4 | 77,6×7,1×2 | 0,037 |
@@ -132,7 +132,7 @@ Balsaosien budjetti on laskettu 70 kg/m³:n balsalle (raskain sallittu levy): la
 | 11 | vasen siipi: satulan takatuki | 10,0×15,2×2 | 0,019 |
 |  | kalvo mylar 2 µm, vasen puolisko | 196 cm² +10 % | 0,060 |
 |  | liimat (kaaret, rimat, tuet) ja 3M77 | arvio | 0,060 |
-| | **Vasen siipi yhteensä** | | **0,684** |
+| | **Vasen siipi yhteensä** | | **0,685** |
 
 #### Oikea siipi
 
@@ -140,8 +140,8 @@ Balsaosien budjetti on laskettu 70 kg/m³:n balsalle (raskain sallittu levy): la
 |---:|---|---|---:|
 | 12 | oikea siipi: etureunarima | 235,0×4,0×2 | 0,131 |
 | 13 | oikea siipi: jättöreunarima | 235,0×4,0×2 | 0,131 |
-| 14 | oikea siipi: tyvikaari | 78,1×7,1×2 | 0,036 |
-| 15 | oikea siipi: täysikaari (keskiriman lovi) | 79,3×7,1×2 | 0,058 |
+| 14 | oikea siipi: tyvikaari (täysi, keskiriman lovi) | 78,1×7,1×2 | 0,058 |
+| 15 | oikea siipi: siipikaari 1 (keskiriman lovi) | 79,3×7,1×2 | 0,036 |
 | 16 | oikea siipi: siipikaari 2 | 79,3×7,1×2 | 0,037 |
 | 17 | oikea siipi: siipikaari 3 | 79,3×7,1×2 | 0,037 |
 | 18 | oikea siipi: siipikaari 4 | 79,3×7,1×2 | 0,037 |
@@ -216,7 +216,7 @@ Balsaosien budjetti on laskettu 70 kg/m³:n balsalle (raskain sallittu levy): la
 
 | Ryhmä | Budjetti g |
 |---|---:|
-| Vasen siipi | 0,684 |
+| Vasen siipi | 0,685 |
 | Oikea siipi | 0,671 |
 | Korkeusvakaaja | 0,421 |
 | Sivuperäsin | 0,218 |

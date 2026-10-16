@@ -103,9 +103,11 @@ DXF_OVERVIEW = HERE / "iltatahti_dxf_osat.svg"
 MODEL_NAME = "Iltatähti P-18"
 MODEL_ID = "iltatahti_p18"  # file names
 WING_SPAR_STYLE = 9  # DXF wing spar that the generated spars copy (height, notch depth, root bevel)
-WING_HALVES = {  # side: (-1 left / +1 right, length along the spar, root rib, full rib)
-    "L": (-1, 245.0, 22, 8),  # left wing (-Y), inner half, 1 cm longer
-    "R": (1, 235.0, 27, 12),  # right wing (+Y)
+WING_HALVES = {  # side: (-1 left / +1 right, length along the spar, root rib, rib 1)
+    # root rib = the full (not lightened) DXF rib at the centerline; rib 1 = the lightened
+    # one a rib bay out; both have the center spar notch
+    "L": (-1, 245.0, 8, 22),  # left wing (-Y), inner half, 1 cm longer
+    "R": (1, 235.0, 12, 27),  # right wing (+Y)
 }
 WING_BAYS = 5  # rib notches per spar = bays + 1 (root rib, full rib, 4 plain ribs as in the DXF)
 WING_RIBS = (2, 5, 30, 31, 32, 33, 34, 37, 41, 42, 43)  # identical ribs, used in this order
@@ -534,7 +536,14 @@ def wing_parts():
                 # the twisted rib meets the straight TE spar at a small angle: clear its seat
                 rise = wash * (s - s0) / (stations[-1] - s0)
                 twist = atan(rise / arm)
-                prof = poly_face(spar_seat_cut(dxf_poly(num), clear=4.2 * tan(twist) + 0.02))
+                poly = spar_seat_cut(dxf_poly(num), clear=4.2 * tan(twist) + 0.02)
+                if i == 1:  # the center spar ends in this rib's notch: clear it for the twist too
+                    c_ = 0.1
+                    poly = poly.difference(Polygon([(CENTER_SPAR_X - SHEET_T / 2 - c_, CENTER_SPAR_SEAT - c_),
+                                                    (CENTER_SPAR_X + SHEET_T / 2 + c_, CENTER_SPAR_SEAT - c_),
+                                                    (CENTER_SPAR_X + SHEET_T / 2 + c_, CENTER_SPAR_SEAT + 10),
+                                                    (CENTER_SPAR_X - SHEET_T / 2 - c_, CENTER_SPAR_SEAT + 10)]))
+                prof = poly_face(poly)
                 rib = FlatPart(f"wing_{side}_rib{i}_{num}", prof, SHEET_T, rib_plane(d * s, up))
                 rib.turns.append((tuple(te_axis), tuple(d), sgn_rib * degrees(twist)))
             else:

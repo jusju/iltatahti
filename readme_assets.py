@@ -71,7 +71,7 @@ def part_name(n: str) -> str:
             return f"{s}: V-kulman keskirima"
         if "_rib" in n:
             k = int(n.split("_rib")[1].split("_")[0])
-            kind = ["tyvikaari", "täysikaari (keskiriman lovi)"][k] if k < 2 else f"siipikaari {k}"
+            kind = ["tyvikaari (täysi, keskiriman lovi)", "siipikaari 1 (keskiriman lovi)"][k] if k < 2 else f"siipikaari {k}"
             return f"{s}: {kind}"
         if "leg_front" in n:
             return f"{s}: satulan etutuki"
@@ -522,7 +522,7 @@ def jig_animations():
                                         "vasten, kärjessä 4 mm ylempänä (wash-in)")]
     for l in ribs[1:] + ribs[:1]:
         i = int(l.split("_rib")[1].split("_")[0])
-        kind = "täysikaari" if i == 1 else "siipikaari"
+        kind = "siipikaari"
         steps.append(([wing[l]], f"osa {pnum[l]}, " + ("tyvikaari: tyviseinän päälle" if i == 0 else
                                                       f"{kind}: haarukkaan, kielekkeet rimojen loviin")))
     steps.append(([wing["wing_L_center_spar"]], f"osa {pnum['wing_L_center_spar']}, V-kulman keskirima: "
