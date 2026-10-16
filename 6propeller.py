@@ -2,16 +2,24 @@
 6propeller.py — a 6 inch (152.4 mm) two blade propeller for the Iltatähti P-18, to be
 printed in PLA. Run it as a script: .venv/bin/python 6propeller.py [--no-viewer]
 
-Designed for the model's cruise: blades shaped for minimum induced loss at the design
-point (Betz / Larrabee optimum, Adkins & Liebeck 1994): chord and blade angle at every
-radius come from the flight speed, the rpm and the thrust the model needs.
+Blades shaped for minimum induced loss (Betz / Larrabee optimum, Adkins & Liebeck
+1994): chord and blade angle at every radius come from the flight speed, a design rpm
+and the thrust the model needs. The design rpm (the pitch) and the blade's design lift
+coefficient are chosen by an off-design blade element (BEM) analysis of the finished,
+printable blade: the best cruise efficiency (the rubber's energy is fixed, so the flight
+time follows the efficiency) among the props whose blades stay below ALPHA_MAX both in
+the cruise and at the launch - when the fully wound rubber gives TORQUE_RATIO times the
+cruise torque and the model flies LAUNCH_SPEED times faster - and that weigh at most
+PROP_MAX_G. A prop with too much pitch, or blades working near their maximum lift in
+the cruise, runs at a low advance ratio at the launch: its blades stall and the thrust
+collapses.
 
   design point   model 7.5 g with the prop + rubber (40" loop, 2.5 x 1.07 mm Tan II)
                  = flying weight; level flight at CL_CRUISE on the wing area; thrust =
                  weight / L/D; rpm from the launch turns and the motor run time
-  blades         thin cambered plate sections (CAMBER), thickness from ROOT_T to TIP_T,
-                 sections wrapped on their radius; rounded tip; right-hand prop (turns
-                 clockwise seen from behind, pulling forward)
+  blades         thin cambered plate sections (CAMBER), thickness from ROOT_T to TIP_T;
+                 rounded tip; right-hand prop (turns clockwise seen from behind,
+                 pulling forward)
   hub            6 mm, 7 mm long, 0.8 mm shaft hole; on the front face a groove across
                  the hub: the bent end of the shaft lies in it and drives the prop
 
@@ -22,11 +30,11 @@ Writes step/6propeller.step and step/6propeller.stl (prop axis = Z, front = +Z).
 """
 
 import argparse
-from math import atan, cos, pi, radians, sin, sqrt
+from math import atan, atan2, cos, pi, radians, sin, sqrt
 from pathlib import Path
 
 import numpy as np
-from build123d import Align, Box, Compound, Cylinder, Location, Solid, Wire, export_step, export_stl
+from build123d import Box, Cylinder, Location, Solid, Wire, export_step, export_stl
 
 HERE = Path(__file__).parent
 OUT = HERE / "step"
@@ -37,7 +45,9 @@ RUBBER_L, RUBBER_W, RUBBER_T, RUBBER_RHO = 1016.0, 2.5, 1.07, 0.96  # mm, mm, mm
 WING_AREA = 0.0384  # m2 (245 + 235 mm x 80 mm)
 CL_CRUISE = 0.9  # wing lift coefficient in the slow indoor cruise
 L_OVER_D = 6.0  # whole model
-LAUNCH_TURNS, MOTOR_RUN_S = 1250, 100.0  # turns at launch (README: 2.5 mm loop) and motor run
+LAUNCH_TURNS = 1250  # turns at launch (README: 2.5 mm loop): motor run = turns / cruise rpm
+TORQUE_RATIO = 2.5  # rubber torque at the launch / in the cruise (after the back-off)
+LAUNCH_SPEED = 1.2  # flight speed at the launch / cruise (climbing)
 RHO = 1.20  # air kg/m3
 
 # ---- propeller --------------------------------------------------------------
@@ -46,7 +56,14 @@ B = 2
 HUB_R, HUB_L = 3.0, 7.0  # mm
 HOLE_D = 0.8  # shaft hole
 GROOVE_W, GROOVE_DEPTH = 0.9, 0.9  # shaft lock groove on the front face
-CL_BLADE, CD_BLADE, ALPHA_DEG = 0.8, 0.055, 5.0  # thin cambered plate at Re ~ 10 000
+# thin cambered plate (CAMBER) at Re ~ 10 000: CL = CL0 + LIFT_SLOPE * alpha up to the stall
+CL0, LIFT_SLOPE = 0.35, 0.09  # CL at 0 deg, per deg
+ALPHA_STALL = 9.5  # deg: CL max about 1.2, then it falls
+CD0, CD_K, CL_CD0 = 0.040, 0.03, 0.5  # CD = CD0 + CD_K (CL - CL_CD0)^2
+ALPHA_MAX = 8.5  # deg: highest angle of attack allowed on the outer blade (0.3 ... 0.95 R)
+DESIGN_RPM = range(600, 2001, 50)  # design rpm candidates
+DESIGN_CL = (0.5, 0.6, 0.7, 0.8)  # blade design lift coefficient candidates
+PROP_MAX_G = 2.5  # weight budget (README)
 CAMBER = 0.05  # camber / chord
 ROOT_T, TIP_T, TE_T = 1.2, 0.6, 0.35  # mm: max thickness at the root and the tip, trailing edge
 TIP_CHORD = 5.0  # mm: rounded tip, the optimum chord goes to zero there
@@ -60,17 +77,17 @@ def design_point():
     w = (MODEL_G + rubber_g) / 1000 * 9.81
     v = sqrt(2 * w / (RHO * WING_AREA * CL_CRUISE))
     thrust = w / L_OVER_D
-    n = LAUNCH_TURNS / MOTOR_RUN_S  # rev/s
-    return dict(rubber_g=rubber_g, weight_n=w, v=v, thrust=thrust, n=n)
+    return dict(rubber_g=rubber_g, weight_n=w, v=v, thrust=thrust)
 
 
-def larrabee(v, n, thrust, r_hub):
+def larrabee(v, n, thrust, r_hub, cl_d):
     """Adkins & Liebeck design for a given thrust: radius (m), chord (m), blade angle
     (rad), efficiency, power (W), torque (N m)."""
     R = D / 2
     om = 2 * pi * n
     lam = v / (om * R)
-    eps = CD_BLADE / CL_BLADE
+    alpha_d = (cl_d - CL0) / LIFT_SLOPE
+    eps = polar(alpha_d)[1] / cl_d
     xi = np.linspace(r_hub / R, 1.0, 200)
     tc = 2 * thrust / (RHO * v ** 2 * pi * R ** 2)
     zeta = 0.0
@@ -83,7 +100,7 @@ def larrabee(v, n, thrust, r_hub):
         G = F * x * np.cos(phi) * np.sin(phi)
         a = zeta / 2 * np.cos(phi) ** 2 * (1 - eps * np.tan(phi))
         W = v * (1 + a) / np.sin(phi)
-        chord = 4 * pi * lam * G * v * R * zeta / (CL_BLADE * B) / W
+        chord = 4 * pi * lam * G * v * R * zeta / (cl_d * B) / W
         i1 = np.trapezoid(4 * xi * G * (1 - eps * np.tan(phi)), xi)
         i2 = np.trapezoid(lam * (4 * G * (1 - eps * np.tan(phi)) / 2) * (1 + eps / np.tan(phi))
                           * np.sin(phi) * np.cos(phi), xi)
@@ -95,7 +112,136 @@ def larrabee(v, n, thrust, r_hub):
         zeta = new
     pc = j1 * zeta + j2 * zeta ** 2
     power = pc * RHO * v ** 3 * pi * R ** 2 / 2
-    return xi * R, chord, phi + radians(ALPHA_DEG), tc / pc, power, power / om
+    return xi * R, chord, phi + radians(alpha_d), tc / pc, power, power / om
+
+
+def geometry(n_design, cl_d):
+    """Blade stations for a design rpm (rev/s): radius (mm), chord (mm), blade angle (rad),
+    max thickness (mm): the Larrabee optimum, shaped for printing (rounded tip, chord
+    limit, narrow thick root)."""
+    dp = design_point()
+    r, c, beta, *_ = larrabee(dp["v"], n_design, dp["thrust"], HUB_R / 1000, cl_d)
+    R = D / 2 * 1000
+    rs = HUB_R - 1.0 + (R - 0.3 - (HUB_R - 1.0)) * (1 - np.cos(np.linspace(0, pi / 2, STATIONS)))  # tip clustered
+    out = []
+    for ri in rs:
+        ci = float(np.interp(ri, r * 1000, c * 1000))
+        bi = float(np.interp(ri, r * 1000, beta))
+        xi = (ri - HUB_R) / (R - HUB_R)
+        tip = TIP_CHORD + (MAX_CHORD - TIP_CHORD) * sqrt(max(0.0, 1 - max(0.0, (ri - 0.8 * R) / (0.2 * R)) ** 2))
+        ci = min(max(ci, TIP_CHORD), tip, MAX_CHORD)
+        if ri < HUB_R + 4:  # blend into the hub: narrower and thicker root
+            ci = min(ci, 6.0 + (ri - HUB_R) * 1.5)
+        out.append((ri, ci, bi, ROOT_T + (TIP_T - ROOT_T) * min(1.0, max(0.0, xi))))
+    return out
+
+
+# --------------------------------------------------------------------------
+# off-design analysis (blade element momentum, Prandtl tip loss)
+# --------------------------------------------------------------------------
+def polar(alpha):
+    """Thin cambered plate: CL, CD at angle of attack alpha (deg)."""
+    if alpha <= ALPHA_STALL:
+        cl = CL0 + LIFT_SLOPE * alpha
+        cd = CD0 + CD_K * (cl - CL_CD0) ** 2
+    else:  # stalled: lift falls, drag jumps
+        cl_max = CL0 + LIFT_SLOPE * ALPHA_STALL
+        cl = cl_max - 0.04 * (alpha - ALPHA_STALL)
+        cd = CD0 + CD_K * (cl_max - CL_CD0) ** 2 + 0.15 + 0.01 * (alpha - ALPHA_STALL)
+    return cl, cd
+
+
+def mass_g(geom):
+    """Prop weight from the blade sections (2 blades) and the hub, solid PLA."""
+    from shapely.geometry import Polygon as P2
+    rr = [g[0] for g in geom]
+    areas = [P2(section(c, t)).area for _, c, _, t in geom]
+    blade = float(np.trapezoid(areas, rr))
+    hub = pi * (HUB_R ** 2 - (HOLE_D / 2) ** 2) * HUB_L
+    return (2 * blade + hub) / 1000 * PLA
+
+
+def bem(geom, v, n):
+    """Thrust (N), torque (N m), angles of attack along the blade (deg, per element),
+    element radii (mm)."""
+    R = D / 2
+    om = 2 * pi * n
+    rr = np.linspace(HUB_R / 1000 + 0.002, R - 0.0005, 40)
+    gr = np.array([g[0] for g in geom]) / 1000
+    cc = np.interp(rr, gr, [g[1] / 1000 for g in geom])
+    bb = np.interp(rr, gr, [g[2] for g in geom])
+    dr = rr[1] - rr[0]
+    thrust = torque = 0.0
+    alphas = []
+    for r, c, beta in zip(rr, cc, bb):
+        sigma = B * c / (2 * pi * r)
+        a = ap = 0.0
+        for _ in range(200):
+            phi = atan2(v * (1 + a), om * r * (1 - ap))
+            al = np.degrees(beta - phi)
+            cl, cd = polar(al)
+            cn, ct = cl * cos(phi) - cd * sin(phi), cl * sin(phi) + cd * cos(phi)
+            f = B / 2 * (R - r) / (r * max(sin(phi), 1e-3))
+            F = max(2 / pi * np.arccos(np.exp(-f)), 1e-3)
+            a_new = sigma * cn / max(4 * F * sin(phi) ** 2 - sigma * cn, 1e-3)
+            ap_new = sigma * ct / (4 * F * sin(phi) * cos(phi) + sigma * ct)
+            a_new, ap_new = min(max(a_new, -0.5), 3.0), min(max(ap_new, -0.5), 0.5)
+            if abs(a_new - a) < 1e-6 and abs(ap_new - ap) < 1e-6:
+                break
+            a, ap = a + 0.3 * (a_new - a), ap + 0.3 * (ap_new - ap)
+        w2 = (v * (1 + a)) ** 2 + (om * r * (1 - ap)) ** 2
+        thrust += 0.5 * RHO * w2 * B * c * cn * dr
+        torque += 0.5 * RHO * w2 * B * c * ct * r * dr
+        alphas.append(al)
+    return thrust, torque, np.array(alphas), rr * 1000
+
+
+def solve_n(geom, v, target, which):
+    """rpm (rev/s) where the thrust (which=0) or the torque (which=1) is `target`."""
+    lo, hi = 1.0, 80.0
+    for _ in range(50):
+        mid = (lo + hi) / 2
+        if bem(geom, v, mid)[which] > target:
+            hi = mid
+        else:
+            lo = mid
+    return (lo + hi) / 2
+
+
+def outer_alpha(alphas, rr):
+    R = D / 2 * 1000
+    sel = (rr > 0.3 * R) & (rr < 0.95 * R)
+    return float(alphas[sel].max())
+
+
+def evaluate(n_design, cl_d):
+    dp = design_point()
+    geom = geometry(n_design, cl_d)
+    n_c = solve_n(geom, dp["v"], dp["thrust"], 0)
+    t_c, q_c, al_c, rr = bem(geom, dp["v"], n_c)
+    v_l = dp["v"] * LAUNCH_SPEED
+    n_l = solve_n(geom, v_l, TORQUE_RATIO * q_c, 1)
+    t_l, q_l, al_l, _ = bem(geom, v_l, n_l)
+    r75 = 0.75 * D / 2 * 1000
+    pitch = 2 * pi * r75 * np.tan(np.interp(r75, [g[0] for g in geom], [g[2] for g in geom]))
+    return dict(n_design=n_design, cl_d=cl_d, mass=mass_g(geom), geom=geom, pitch=pitch, n_c=n_c, q_c=q_c, eta_c=t_c * dp["v"] / (q_c * 2 * pi * n_c),
+                alpha_c=outer_alpha(al_c, rr), n_l=n_l, t_l=t_l, alpha_l=outer_alpha(al_l, rr),
+                run_s=LAUNCH_TURNS / n_c)
+
+
+def choose():
+    """Best cruise efficiency among the props that do not stall (cruise and launch) and
+    stay within the weight budget."""
+    rows = [evaluate(rpm / 60, cl) for cl in DESIGN_CL for rpm in DESIGN_RPM]
+    ok = [r for r in rows if r["alpha_l"] <= ALPHA_MAX and r["alpha_c"] <= ALPHA_MAX and r["mass"] <= PROP_MAX_G]
+    if not ok:
+        raise ValueError("no design keeps the blades below ALPHA_MAX within the weight budget")
+    return max(ok, key=rank), rows
+
+
+def rank(r):
+    """Best efficiency; between equals (0.1 %) the one with the lower cruise rpm (more pitch)."""
+    return (round(r["eta_c"], 3), -r["n_c"])
 
 
 def section(chord, t_max):
@@ -112,34 +258,23 @@ def section(chord, t_max):
 
 
 def blade_wire(r, chord, beta, t_max):
-    """Section at radius r (mm), wrapped on the cylinder r. Right-hand prop: the blade at
-    +X moves to +Y; the LE is ahead (+Y) and forward (+Z) of the TE."""
+    """Section at radius r (mm) in the plane x = r (planar, so the loft can close its ends;
+    against a section wrapped on the cylinder the difference is under 0.4 mm). Right-hand
+    prop: the blade at +X moves to +Y; the LE is ahead (+Y) and forward (+Z) of the TE."""
     pts = []
     for s, y in section(chord, t_max):
         u = s - 0.40 * chord  # blade stacked at 40 % chord
         # chord from LE to TE: -(cos b) Y - (sin b) Z; suction side normal: -(sin b) Y + (cos b) Z
         tang = -u * cos(beta) - y * sin(beta)
         ax = -u * sin(beta) + y * cos(beta)
-        th = tang / r
-        pts.append((r * cos(th), r * sin(th), ax))
+        pts.append((r, tang, ax))
     return Wire.make_polygon(pts, close=True)
 
 
-def build():
-    dp = design_point()
-    r, c, beta, eta, power, torque = larrabee(dp["v"], dp["n"], dp["thrust"], HUB_R / 1000)
-    R = D / 2 * 1000
-    rs = HUB_R - 1.0 + (R - 0.3 - (HUB_R - 1.0)) * (1 - np.cos(np.linspace(0, pi / 2, STATIONS)))  # tip clustered
+def build(best=None):
+    best = best or choose()[0]
     wires, table = [], []
-    for ri in rs:
-        ci = float(np.interp(ri, r * 1000, c * 1000))
-        bi = float(np.interp(ri, r * 1000, beta))
-        xi = (ri - HUB_R) / (R - HUB_R)
-        tip = TIP_CHORD + (MAX_CHORD - TIP_CHORD) * sqrt(max(0.0, 1 - max(0.0, (ri - 0.8 * R) / (0.2 * R)) ** 2))
-        ci = min(max(ci, TIP_CHORD), tip, MAX_CHORD)
-        if ri < HUB_R + 4:  # blend into the hub: narrower and thicker root
-            ci = min(ci, 6.0 + (ri - HUB_R) * 1.5)
-        ti = ROOT_T + (TIP_T - ROOT_T) * min(1.0, max(0.0, xi))
+    for ri, ci, bi, ti in best["geom"]:
         wires.append(blade_wire(ri, ci, bi, ti))
         table.append((ri, ci, bi, 2 * pi * ri * np.tan(bi)))
     blade = Solid.make_loft(wires)
@@ -153,7 +288,7 @@ def build():
     prop = prop - groove
     solids = prop.solids() if hasattr(prop, "solids") else [prop]
     out = max(solids, key=lambda s: s.volume)
-    return out, dict(dp=dp, eta=eta, power=power, torque=torque, table=table)
+    return out, dict(dp=design_point(), best=best, table=table)
 
 
 def _z_axis():
@@ -162,14 +297,31 @@ def _z_axis():
 
 
 def main(viewer=True):
-    prop, info = build()
-    dp = info["dp"]
+    best, rows = choose()
+    dp = design_point()
+    print(f"Lento: paino {MODEL_G + dp['rubber_g']:.1f} g (kumi {dp['rubber_g']:.2f} g), nopeus {dp['v']:.2f} m/s, "
+          f"veto {dp['thrust'] * 1000:.1f} mN; lähdössä vääntö ×{TORQUE_RATIO:g}, nopeus ×{LAUNCH_SPEED:g}")
+    print("Nousun valinta (suurin kohtauskulma lavan ulko-osalla 0,3–0,95 R, sallittu "
+          f"{ALPHA_MAX:g}°, sakkaus {ALPHA_STALL:g}°):")
+    print("  CL   P/D   matka rpm  hyötys.  α matka  lähtö rpm  α lähtö  paino  ")
+    for cl in DESIGN_CL:  # per design CL: the best one that does not stall, and the next higher pitch
+        rs = [r for r in rows if r["cl_d"] == cl]
+        ok = [r for r in rs if r["alpha_l"] <= ALPHA_MAX and r["alpha_c"] <= ALPHA_MAX]
+        ok = [r for r in ok if r["mass"] <= PROP_MAX_G] or ok
+        show_ = ([max(ok, key=rank)] if ok else []) + \
+                [r for r in rs if r["alpha_l"] > ALPHA_MAX][-1:]
+        for r in sorted(show_, key=lambda r: -r["pitch"]):
+            mark = "  <- valittu" if r is best else ("  sakkaa lähdössä" if r["alpha_l"] > ALPHA_MAX else
+                                                       ("  liian painava" if r["mass"] > PROP_MAX_G else ""))
+            print(f"  {r['cl_d']:.1f}  {r['pitch'] / (D * 1000):4.2f}  {r['n_c'] * 60:7.0f}  {r['eta_c'] * 100:6.1f} %"
+                  f"  {r['alpha_c']:6.1f}°  {r['n_l'] * 60:8.0f}  {r['alpha_l']:6.1f}°  {r['mass']:4.2f} g{mark}")
+    prop, info = build(best)
     mass = prop.volume / 1000 * PLA
-    p75 = np.interp(0.75 * D / 2 * 1000, [t[0] for t in info["table"]], [t[3] for t in info["table"]])
-    print(f"Toimintapiste: lentopaino {MODEL_G + dp['rubber_g']:.1f} g (kumi {dp['rubber_g']:.2f} g), "
-          f"nopeus {dp['v']:.2f} m/s, veto {dp['thrust'] * 1000:.1f} mN, {dp['n'] * 60:.0f} rpm")
-    print(f"Potkuri: hyötysuhde {info['eta'] * 100:.0f} %, teho {info['power'] * 1000:.0f} mW, vääntö "
-          f"{info['torque'] * 1000:.2f} mN·m; nousu 0,75 R:llä {p75:.0f} mm (P/D {p75 / (D * 1000):.2f})")
+    print(f"Valittu: lavan suunnittelunoste {best['cl_d']:.1f}, nousu 0,75 R:llä {best['pitch']:.0f} mm "
+          f"(P/D {best['pitch'] / (D * 1000):.2f}); matkalento "
+          f"{best['n_c'] * 60:.0f} rpm, hyötysuhde {best['eta_c'] * 100:.0f} %, vääntö {best['q_c'] * 1000:.2f} mN·m, "
+          f"moottoriaika ~{best['run_s']:.0f} s; lähtö {best['n_l'] * 60:.0f} rpm, veto {best['t_l'] * 1000:.0f} mN, "
+          f"suurin kohtauskulma {best['alpha_l']:.1f}°")
     print("  r mm   jänne mm   kulma °   nousu mm")
     for ri, ci, bi, pi_ in info["table"][::3] + [info["table"][-1]]:
         print(f"  {ri:5.1f}  {ci:7.1f}  {np.degrees(bi):7.1f}  {pi_:8.0f}")
