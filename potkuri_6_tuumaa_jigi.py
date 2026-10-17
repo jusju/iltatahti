@@ -14,10 +14,14 @@ mould without pressing: the mould shapes the pressure side, the suction side sta
   center        a through pocket (2 POCKET_HALF_X along the blades, 2 POCKET_HALF_Y
                 across) for the printed four-armed hub cross that takes the shaft and
                 the blades' skewers
-  skewer slots  from the pocket edge SLOT_L mm into each blade root: a SKEWER_D groove on
-                the blade axis, its center SNAP mm under the mould surface, so its mouth
-                is narrower than the 2 mm bamboo skewer: the skewer snaps in and stays
-                put while laminating
+  spine rod     one straight ROD_D (1 mm) round carbon rod from blade to blade (to ±ROD_REACH
+                of the radius), on the blades' upper surface along the blade axis,
+                laminated onto it. In the pocket there is nothing else during the lay-up
+                (the blades end at the pocket): a ridge across the pocket, from the mould
+                bottom, has a snap groove for the rod (center ROD_SNAP under the ridge
+                top), so it stays put in the vacuum bag
+  skewer slots  only with SKEWER_SLOTS: from the pocket edge SLOT_L mm into each blade
+                root, a SKEWER_D snap groove on the pressure side
   split marks   2 x 2 x 2 mm notches in the front edge (-y, top) at x = ±SPLIT_X, where
                 the mould can be cut in three
   registration  only with UPPER: pins on the lower half, holes in the upper half
@@ -46,7 +50,12 @@ NAME = Path(__file__).stem
 
 DIAMETER_IN = 7.0  # prop diameter, inch
 POCKET_HALF_X, POCKET_HALF_Y = 17.0, 12.0  # center pocket for the hub cross: 34 x 24 mm, through
+SKEWER_SLOTS = False  # 2 mm bamboo skewer slots on the pressure side (replaced by the carbon spine rods)
 SKEWER_D, SLOT_L, SNAP = 2.0, 10.0, 0.44  # skewer slots: diameter, length, axis under the surface
+ROD_D = 1.0  # carbon spine rod, round
+ROD_REACH = 0.5  # rod reaches this fraction of the radius from the center (adjust: e.g. as on Ikara props)
+ROD_SNAP = 0.15  # rod center under the ridge top: groove mouth 2 sqrt(r^2 - h^2) = 0.95 mm
+RIDGE_W = 4.0  # rod support ridge across the pocket
 MARK = 2.0  # split mark notches (cube)
 TIP_MARGIN = 15.0  # mould beyond the blade tips
 SIDE_MARGIN = 16.0  # mould beside the blades (across)
@@ -120,7 +129,7 @@ def build():
     lower = _chamfer_outer(lower, z_bot)  # before the slots and marks: the chamfer would lose them
     # skewer slots on the blade axis, from the pocket edge into each blade root
     slots = []
-    for side in (1, -1):
+    for side in ((1, -1) if SKEWER_SLOTS else ()):
         xa, xb = side * POCKET_HALF_X, side * (POCKET_HALF_X + SLOT_L)
         ends = []
         for x in (xa + side * 0.3, xb):
@@ -137,6 +146,23 @@ def build():
                                                                           align=(Align.CENTER, Align.CENTER, Align.MIN))
         lower = lower - slot
         slots.append((xa, xb, za, zb))
+    # spine rod: one straight 1 mm carbon rod from blade to blade over the pocket (the only
+    # thing there during the lay-up), on the blades' upper surface along the blade axis; it
+    # rests on the surface across its whole width (the root is steep across y). A ridge
+    # across the pocket with a snap groove holds it
+    r_reach = ROD_REACH * R
+    xs = np.linspace(POCKET_HALF_X + 0.5, r_reach, 14)
+    ys_ = np.linspace(-ROD_D / 2, ROD_D / 2, 9)
+    zc = np.array([max(top_z(prop, x, y) + np.sqrt(max(0.0, (ROD_D / 2) ** 2 - y ** 2)) for y in ys_) for x in xs])
+    rod_c = float(zc.max())  # straight and level (both blades are 180 deg symmetric): touches the highest point
+    gap_max = float(np.max(rod_c - zc))
+    from build123d import Plane as _Pl, Polygon as _Pg, extrude as _ex
+    ridge_pts = [(-POCKET_HALF_X, z_bot), (POCKET_HALF_X, z_bot), (POCKET_HALF_X, rod_c + ROD_SNAP),
+                 (-POCKET_HALF_X, rod_c + ROD_SNAP)]
+    lower = lower + _ex(_Pl.XZ * _Pg(*ridge_pts, align=None), amount=RIDGE_W / 2, both=True)
+    lower = lower - Location((0, 0, rod_c)) * Rot(0, 90, 0) * Cylinder(ROD_D / 2, 2 * POCKET_HALF_X)
+    rods = [Location((0, 0, rod_c)) * Rot(0, 90, 0) * Cylinder(ROD_D / 2, 2 * r_reach)]
+    rod_info = dict(reach=r_reach, length=2 * r_reach, z_center=rod_c, gap_max=gap_max)
     # split marks: 2 mm cubes out of the front edge (-y, top) at x = ±SPLIT_X
     marks = []
     for x in (-SPLIT_X, SPLIT_X):
@@ -157,8 +183,9 @@ def build():
         upper = _chamfer_outer(upper, z_top)
         upper.label = f"{Path(__file__).name}: yläpuolisko"
     lower.label = f"{Path(__file__).name}: muotti"
-    return dict(prop=prop, lower=lower, upper=upper, z_bot=z_bot, z_top=z_top, half_w=half_w, x_end=x_end,
-                z_lo=z_lo, z_hi=z_hi, slots=slots, marks=marks, best=best, p6=p6)
+    blades = prop - Box(2 * POCKET_HALF_X, 4 * half_w, 4 * (z_top - z_bot))  # build phase: no hub, blades end at the pocket
+    return dict(prop=prop, blades=blades, lower=lower, upper=upper, z_bot=z_bot, z_top=z_top, half_w=half_w, x_end=x_end,
+                z_lo=z_lo, z_hi=z_hi, slots=slots, marks=marks, best=best, p6=p6, rods=rods, rod_info=rod_info)
 
 
 def top_z(solid, x, y):
@@ -210,6 +237,11 @@ def main(viewer=True):
     for xa, xb, za, zb in b["slots"]:
         print(f"Grillitikun hahlo ⌀{SKEWER_D:g} x {xa:+.0f}…{xb:+.0f} mm (pituus {abs(xb - xa):.0f}), akseli "
               f"{SNAP:g} mm pinnan alla pinnan normaalin suuntaan (suu {2 * (max(0, (SKEWER_D / 2) ** 2 - SNAP ** 2)) ** 0.5:.2f} mm)")
+    ri = b["rod_info"]
+    print(f"Hiilikuituruoto ⌀{ROD_D:g}, yksi suora {ri['length']:.0f} mm (±{ri['reach']:.0f} mm = ±{ROD_REACH:g} R) "
+          f"lapojen yläpinnalla lavan akselilla; lepää pinnalla, rako pintaan enintään {ri['gap_max']:.2f} mm")
+    print(f"Kannatusharjanne taskun poikki {RIDGE_W:g} mm leveä; napsautusura ⌀{ROD_D:g}, keskilinja {ROD_SNAP:g} mm "
+          f"harjanteen pinnan alla (suu {2 * ((ROD_D / 2) ** 2 - ROD_SNAP ** 2) ** 0.5:.2f} mm), keskellä z {ri['z_center']:+.2f}")
     print("Jakomerkit 2×2×2 mm etureunassa (−y): " + ", ".join(f"x {x:+.0f}" for x, _ in b["marks"]))
     OUT.mkdir(exist_ok=True)
     for old in OUT.glob(f"{NAME}_*"):  # no stale halves or pieces left
@@ -230,11 +262,14 @@ def main(viewer=True):
             from ocp_vscode import Camera, show
 
             src = Path(__file__).name
-            objs, names = [lo, b["prop"]], [f"{src}: muotti", f"{src}: potkuri {DIAMETER_IN:g}\" (6propeller.py:n menetelmä)"]
+            objs = [lo, b["blades"]] + b["rods"]
+            names = [f"{src}: muotti", f"{src}: potkurin lavat rakennusvaiheessa {DIAMETER_IN:g}\"",
+                     f"{src}: hiilikuituruoto 1 mm"]
             if up is not None:
                 objs.append(up.moved(Location((0, 0, 70))))
                 names.append(f"{src}: yläpuolisko (nostettu 70 mm)")
-            show(*objs, names=names, colors=["#c8b28a", "#222222", "#8aa6c8"][:len(objs)], reset_camera=Camera.RESET)
+            show(*objs, names=names, colors=(["#c8b28a", "#222222", "#d03030", "#8aa6c8"])[:len(objs)],
+                 reset_camera=Camera.RESET)
         except Exception as e:  # viewer not running
             print(f"OCP viewer ei ole käytettävissä: {e}")
 
