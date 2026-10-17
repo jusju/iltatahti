@@ -237,8 +237,9 @@ Balsaa yhteensä enintään 2,63 g. Kumimoottori ei kuulu painoon.
 - Taivuta koukku 40 mm:n pätkästä 0,8 mm:n pianolankaa. Noin 15 mm langasta jää
   kiinnitysosaksi tikun kylkeen. Loppuosa taivutetaan suoraan alas vetoviivan korkeudelle,
   9,8 mm tikun alapinnan alapuolelle. Pään avoin koukku taivutetaan kumilenkkiä varten.
-- Koukku tulee 259 mm:n päähän tikun etupäästä, jolloin koukkuväli on 253 mm (sääntö
-  enintään 254 mm). Kohta on kaiverrettu 4 mm:n laserlevyn runkotikkuihin poikittaisena
+- Koukku tulee 356 mm:n päähän tikun etupäästä, jolloin koukkuväli on 350 mm. Noin
+  502 mm:n Limited-lenkki on silloin 1,43-kertainen koukkuväliin nähden, joten löysää ja
+  oksia on vähän. P-18-kilpailussa koukkuväli saa olla enintään 254 mm (sääntö 7). Kohta on kaiverrettu 4 mm:n laserlevyn runkotikkuihin poikittaisena
   viivana, ja tikun alareunassa oleva kolmio osoittaa, että koukku tulee alapuolelle.
 - Kiinnitä koukku sitomalla se tiukasti karhulangalla tikun kylkeen. Kierrä lanka
   kiinnitysosan ympäri 8–10 kertaa ja kastele sidonta ohuella CA-liimalla.

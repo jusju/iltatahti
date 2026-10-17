@@ -187,10 +187,10 @@ MOUNT_POCKET_BOTTOM = pukki.POCKET_BOTTOM  # mount Z of the stick pocket bottom 
 MOUNT_POCKET_TOP = pukki.POCKET_TOP  # mount Y of the pocket top (stick top level with it)
 MOUNT_BEARING_Y = pukki.dims(PUKKI)["bearing_y"]  # mount Y of the prop shaft bearing axis (at its front end)
 MOUNT_THRUST_Z = MOUNT_BEARING_Y - MOUNT_POCKET_TOP  # thrust line height in the model
-# rule 7: at most 10" (254 mm). The 40" Limited loop (~502 mm) is twice as long: the longer
-# the hook distance, the less slack and bunching; the torque is the same (it comes from
-# the rubber's length and cross-section). So the largest allowed, 1 mm margin.
-HOOK_TO_HOOK = 253.0
+# The 40" Limited loop (~502 mm): a motor 1.2-1.5 times the hook distance has little slack
+# (no bunching) yet winds fully; the torque is the same (it comes from the rubber's length
+# and cross-section). 350 mm = 1.43: for sport flying - P-18 rule 7 allows only 254 mm.
+HOOK_TO_HOOK = 350.0
 STICK_X0 = 10.0
 STICK_LEN = 497.0  # a 50 cm balsa strip less ~3 mm, so both ends are cut (1 mm edge margins)
 TAIL_END_X = STICK_X0 + STICK_LEN  # stab TE / fin TE / stick end
