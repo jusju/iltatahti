@@ -47,6 +47,7 @@ FLATTEN_TOL = 0.02  # curve to polyline tolerance
 FILLER = {model.STICK_W: [("motor_stick", 2), ("wing_wedge", None)]}
 OUT_DIR = Path(__file__).parent / "laser"
 TAB_COUNT: list[int] = []  # tabs per written part, for the check in main()
+MARKS: dict = {}  # part name -> engraved marks (shapely polygons in the part's own coordinates)
 OVERVIEW = Path(__file__).parent / "osat_esitys.svg"
 
 
@@ -401,7 +402,14 @@ def write_svg(path: Path, sheet: Sheet, title: str, raws: dict) -> list[str]:
         for c in cut_paths_with_tabs(poly):
             cut.append(f'      <path style="{CUT_STYLE}" d="{svg_path(c)}"/>')
         cut.append("    </g>")
-        lab = label_for_part(name, poly, str(num))
+        marks = [affinity.affine_transform(mk, list(placement_matrix(raws[base], poly))) for mk in MARKS.get(base, [])]
+        for mk in marks:
+            engrave.append(f'    <path style="{ENGRAVE_STYLE}" d="{svg_path(mk.exterior.coords, True)}">'
+                           f'<title>{num}: merkki</title></path>')
+        free = poly.difference(unary_union(marks).buffer(1.0)) if marks else poly  # number clear of the marks
+        if free.geom_type != "Polygon":
+            free = max(free.geoms, key=lambda g: g.area)
+        lab = label_for_part(name, free, str(num))
         if lab is None:
             warnings.append(num)
             continue
@@ -435,6 +443,8 @@ def main(flat=None, quiet=False) -> list[Path]:
     OUT_DIR.mkdir(exist_ok=True)
 
     parts = [(num, p.name, p.thickness, profile_polygon(p)) for num, p in enumerate(flat, 1)]
+    MARKS.clear()
+    MARKS.update({p.name: p.marks for p in flat if getattr(p, "marks", None)})
     raws = {p.name: profile_raw(p) for p in flat}
     if not quiet:
         print("Osat:")

@@ -187,7 +187,10 @@ MOUNT_POCKET_BOTTOM = pukki.POCKET_BOTTOM  # mount Z of the stick pocket bottom 
 MOUNT_POCKET_TOP = pukki.POCKET_TOP  # mount Y of the pocket top (stick top level with it)
 MOUNT_BEARING_Y = pukki.dims(PUKKI)["bearing_y"]  # mount Y of the prop shaft bearing axis (at its front end)
 MOUNT_THRUST_Z = MOUNT_BEARING_Y - MOUNT_POCKET_TOP  # thrust line height in the model
-HOOK_TO_HOOK = 250.0  # rule 254
+# rule 7: at most 10" (254 mm). The 40" Limited loop (~502 mm) is twice as long: the longer
+# the hook distance, the less slack and bunching; the torque is the same (it comes from
+# the rubber's length and cross-section). So the largest allowed, 1 mm margin.
+HOOK_TO_HOOK = 253.0
 STICK_X0 = 10.0
 STICK_LEN = 497.0  # a 50 cm balsa strip less ~3 mm, so both ends are cut (1 mm edge margins)
 TAIL_END_X = STICK_X0 + STICK_LEN  # stab TE / fin TE / stick end
@@ -217,6 +220,7 @@ class FlatPart:
     grain: float = 0.0  # wood grain direction in the profile, degrees from local X
     color: Color = BALSA
     turns: list = field(default_factory=list)  # [(axis origin, axis direction, degrees)] after placing
+    marks: list = field(default_factory=list)  # shapely polygons in profile coords, engraved by the laser
 
     def solid(self, loc: Location = Location()):
         placed = self.plane.location * self.profile
@@ -729,7 +733,12 @@ def motor_stick():
     prof = polygon_profile([(0, -STICK_H), (STICK_LEN - STICK_TAPER_LEN, -STICK_H),
                             (STICK_LEN, -STICK_H_TAIL), (STICK_LEN, 0), (0, 0)])
     plane = Plane(origin=(STICK_X0, 0, 0), x_dir=(1, 0, 0), z_dir=(0, -1, 0))
-    return FlatPart("motor_stick", prof, STICK_W, plane)
+    # engraved mark where the rear hook goes: a line across the stick and a small
+    # triangle at the bottom edge (the hook hangs below the stick)
+    xh = FRONT_HOOK_X + HOOK_TO_HOOK - STICK_X0
+    line = Polygon([(xh - 0.25, -STICK_H + 0.6), (xh + 0.25, -STICK_H + 0.6), (xh + 0.25, -0.6), (xh - 0.25, -0.6)])
+    tri = Polygon([(xh - 1.5, -STICK_H + 0.6), (xh + 1.5, -STICK_H + 0.6), (xh, -STICK_H + 3.0)])
+    return FlatPart("motor_stick", prof, STICK_W, plane, marks=[line.union(tri)])
 
 
 def motor_mount():

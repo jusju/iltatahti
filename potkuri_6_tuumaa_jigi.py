@@ -117,6 +117,7 @@ def build():
     block = Location((0, 0, (z_bot + z_top) / 2)) * Box(2 * x_end, 2 * half_w, z_top - z_bot)
     pocket = Box(2 * POCKET_HALF_X, 2 * POCKET_HALF_Y, 4 * (z_top - z_bot))
     lower = max((block - above - prop - pocket).solids(), key=lambda s: s.volume)
+    lower = _chamfer_outer(lower, z_bot)  # before the slots and marks: the chamfer would lose them
     # skewer slots on the blade axis, from the pocket edge into each blade root
     slots = []
     for side in (1, -1):
@@ -155,8 +156,7 @@ def build():
                                                                   align=(Align.CENTER, Align.CENTER, Align.MIN))
         upper = _chamfer_outer(upper, z_top)
         upper.label = f"{Path(__file__).name}: yläpuolisko"
-    lower = _chamfer_outer(lower, z_bot)
-    lower.label = f"{Path(__file__).name}: muotti" 
+    lower.label = f"{Path(__file__).name}: muotti"
     return dict(prop=prop, lower=lower, upper=upper, z_bot=z_bot, z_top=z_top, half_w=half_w, x_end=x_end,
                 z_lo=z_lo, z_hi=z_hi, slots=slots, marks=marks, best=best, p6=p6)
 
