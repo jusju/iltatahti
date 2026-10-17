@@ -57,7 +57,7 @@ mittakaavalla. Piirustuksessa on 100 mm:n tarkistusmitta, jolla voi varmistaa, e
 | Korkeusvakaaja | 240 × 66,2 mm, tasainen, 5 kaarta, kallistus ±5 mm |
 | Sivuperäsin | 50/30 × 60 mm, kääntyvä, 2° vasemmalle |
 | Runkotikku | 7 × 4 × 497 mm balsaa, takapää kapenee 4 mm:iin; hiilikuitulatat 0,1 × 1 mm päällä ja alla |
-| Koukkuväli | 250 mm |
+| Koukkuväli | 350 mm |
 | Vetoviiva | 0° ylös/alas, 2° vasemmalle; akseli 9,8 mm tikun alapinnan alapuolella |
 | Kokonaispituus | 507 mm |
 | Potkuri | 6" kaupallinen muovipotkuri, laakeri 2 lasihelmeä + ≥ 3 mylar-prikkaa, teflonöljy |
@@ -96,9 +96,9 @@ Mallista mitatut arvot, jotka `p18_iltatahti.py` tarkistaa jokaisella päivityks
 | 4 | korkeusvakaajan kärkiväli | 239,9 | 228,6 | ❌ ylittyy |
 | 4 | korkeusvakaajan jänne | 66,2 | 88,9 | ✅ |
 | 5 | kokonaispituus potkuri mukaan lukien | 507,0 | 457,2 | ❌ ylittyy |
-| 7 | koukkuväli | 250,0 | 254,0 | ✅ |
+| 7 | koukkuväli | 350,0 | 254,0 | ❌ ylittyy |
 
-> **Huom.** Malli ylittää P-18-rajan: siiven kärkiväli (projektio), korkeusvakaajan kärkiväli, kokonaispituus potkuri mukaan lukien. Kilpailukoneessa nämä mitat pitää pienentää rajojen sisään.
+> **Huom.** Malli ylittää P-18-rajan: siiven kärkiväli (projektio), korkeusvakaajan kärkiväli, kokonaispituus potkuri mukaan lukien, koukkuväli. Kilpailukoneessa nämä mitat pitää pienentää rajojen sisään.
 <!-- END:saannot -->
 
 > **Kate:** sääntö 1 mainitsee katteeksi vain silkkipaperin ja HDPE-pussin. Ennen kilpailua
@@ -191,7 +191,7 @@ Balsaosien budjetti on laskettu 70 kg/m³:n balsalle (raskain sallittu levy): la
 |  | hiilikuitulatta tikun alla | 0,1×1×497 mm, 1,6 g/cm³ | 0,080 |
 |  | CA-liima latoille | arvio | 0,030 |
 |  | liimat: kiila, satulan tuet tikkuun, pukki | arvio | 0,030 |
-| | **Runko yhteensä** | | **1,275** |
+| | **Runko yhteensä** | | **1,274** |
 
 #### Moottoripukki ja potkuri
 
@@ -220,7 +220,7 @@ Balsaosien budjetti on laskettu 70 kg/m³:n balsalle (raskain sallittu levy): la
 | Oikea siipi | 0,671 |
 | Korkeusvakaaja | 0,421 |
 | Sivuperäsin | 0,218 |
-| Runko | 1,275 |
+| Runko | 1,274 |
 | Moottoripukki ja potkuri | 3,510 |
 | Takakoukku | 0,178 |
 | **Yhteensä ilman kumia** | **6,958** |
