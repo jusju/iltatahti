@@ -1,0 +1,258 @@
+[
+  {
+    "model": "pukki_plate_5mm_Z.stl",
+    "voxel_size_mm": 0.75,
+    "elements": 1115,
+    "nodes": 1910,
+    "free_DOF": 4638,
+    "clamped_nodes": 364,
+    "loaded_nodes": 48,
+    "material_E_MPa": 2000.0,
+    "material_poisson": 0.35,
+    "assumed_loads": "Fz=+0.5N,Fy=-0.5tan(2deg)N,Mz=+1Nmm",
+    "boundary_condition": "fuselage socket inner radial surface clamped (rigid bond)",
+    "cases": {
+      "rubber_Fz_0p5N": {
+        "hub_displacement_mm": [
+          -0.00015782,
+          -0.0,
+          0.00215493
+        ],
+        "max_displacement_mm": 0.0031663,
+        "strain_energy_Nmm": 0.00053873,
+        "stress_vonMises_center_P95_MPa": 0.16488,
+        "stress_vonMises_center_max_MPa": 0.30096,
+        "stress_vonMises_center_P99_MPa": 0.27365
+      },
+      "left_Fy_2deg": {
+        "hub_displacement_mm": [
+          0.0,
+          -0.00020431,
+          0.0
+        ],
+        "max_displacement_mm": 0.0002931,
+        "strain_energy_Nmm": 1.78e-06,
+        "stress_vonMises_center_P95_MPa": 0.00855,
+        "stress_vonMises_center_max_MPa": 0.01855,
+        "stress_vonMises_center_P99_MPa": 0.01519
+      },
+      "shaft_torsion_Mz_1Nmm": {
+        "hub_displacement_mm": [
+          -0.0,
+          0.00239949,
+          -0.0
+        ],
+        "max_displacement_mm": 0.0035163,
+        "strain_energy_Nmm": 0.00030687,
+        "stress_vonMises_center_P95_MPa": 0.09875,
+        "stress_vonMises_center_max_MPa": 0.2334,
+        "stress_vonMises_center_P99_MPa": 0.18487
+      },
+      "combined_example": {
+        "hub_displacement_mm": [
+          -0.00015782,
+          0.00219518,
+          0.00215493
+        ],
+        "max_displacement_mm": 0.0048473,
+        "strain_energy_Nmm": 0.00080549,
+        "stress_vonMises_center_P95_MPa": 0.17477,
+        "stress_vonMises_center_max_MPa": 0.49449,
+        "stress_vonMises_center_P99_MPa": 0.33113
+      }
+    },
+    "duration_s": 0.36
+  },
+  {
+    "model": "pukki_plate_10mm_Z.stl",
+    "voxel_size_mm": 0.75,
+    "elements": 1764,
+    "nodes": 2944,
+    "free_DOF": 6804,
+    "clamped_nodes": 676,
+    "loaded_nodes": 48,
+    "material_E_MPa": 2000.0,
+    "material_poisson": 0.35,
+    "assumed_loads": "Fz=+0.5N,Fy=-0.5tan(2deg)N,Mz=+1Nmm",
+    "boundary_condition": "fuselage socket inner radial surface clamped (rigid bond)",
+    "cases": {
+      "rubber_Fz_0p5N": {
+        "hub_displacement_mm": [
+          0.00015081,
+          -0.0,
+          0.0008982
+        ],
+        "max_displacement_mm": 0.0011767,
+        "strain_energy_Nmm": 0.00022455,
+        "stress_vonMises_center_P95_MPa": 0.08731,
+        "stress_vonMises_center_max_MPa": 0.17377,
+        "stress_vonMises_center_P99_MPa": 0.13811
+      },
+      "left_Fy_2deg": {
+        "hub_displacement_mm": [
+          0.0,
+          -0.00020209,
+          0.0
+        ],
+        "max_displacement_mm": 0.0002812,
+        "strain_energy_Nmm": 1.76e-06,
+        "stress_vonMises_center_P95_MPa": 0.00592,
+        "stress_vonMises_center_max_MPa": 0.01875,
+        "stress_vonMises_center_P99_MPa": 0.01369
+      },
+      "shaft_torsion_Mz_1Nmm": {
+        "hub_displacement_mm": [
+          -0.0,
+          0.00236021,
+          -0.0
+        ],
+        "max_displacement_mm": 0.0034282,
+        "strain_energy_Nmm": 0.00029544,
+        "stress_vonMises_center_P95_MPa": 0.07355,
+        "stress_vonMises_center_max_MPa": 0.20121,
+        "stress_vonMises_center_P99_MPa": 0.18236
+      },
+      "combined_example": {
+        "hub_displacement_mm": [
+          0.00015081,
+          0.00215812,
+          0.0008982
+        ],
+        "max_displacement_mm": 0.0034628,
+        "strain_energy_Nmm": 0.00048054,
+        "stress_vonMises_center_P95_MPa": 0.09917,
+        "stress_vonMises_center_max_MPa": 0.32939,
+        "stress_vonMises_center_P99_MPa": 0.23074
+      }
+    },
+    "duration_s": 0.67
+  },
+  {
+    "model": "pukki_V2_5mm_Z.stl",
+    "voxel_size_mm": 0.75,
+    "elements": 1213,
+    "nodes": 2072,
+    "free_DOF": 5124,
+    "clamped_nodes": 364,
+    "loaded_nodes": 48,
+    "material_E_MPa": 2000.0,
+    "material_poisson": 0.35,
+    "assumed_loads": "Fz=+0.5N,Fy=-0.5tan(2deg)N,Mz=+1Nmm",
+    "boundary_condition": "fuselage socket inner radial surface clamped (rigid bond)",
+    "cases": {
+      "rubber_Fz_0p5N": {
+        "hub_displacement_mm": [
+          -5.72e-06,
+          -0.0,
+          0.00147526
+        ],
+        "max_displacement_mm": 0.0021453,
+        "strain_energy_Nmm": 0.00036882,
+        "stress_vonMises_center_P95_MPa": 0.1277,
+        "stress_vonMises_center_max_MPa": 0.22539,
+        "stress_vonMises_center_P99_MPa": 0.18631
+      },
+      "left_Fy_2deg": {
+        "hub_displacement_mm": [
+          0.0,
+          -4.032e-05,
+          0.0
+        ],
+        "max_displacement_mm": 6.03e-05,
+        "strain_energy_Nmm": 3.5e-07,
+        "stress_vonMises_center_P95_MPa": 0.00389,
+        "stress_vonMises_center_max_MPa": 0.0074,
+        "stress_vonMises_center_P99_MPa": 0.00549
+      },
+      "shaft_torsion_Mz_1Nmm": {
+        "hub_displacement_mm": [
+          -0.0,
+          0.00038596,
+          -0.0
+        ],
+        "max_displacement_mm": 0.0006825,
+        "strain_energy_Nmm": 7.696e-05,
+        "stress_vonMises_center_P95_MPa": 0.05324,
+        "stress_vonMises_center_max_MPa": 0.10621,
+        "stress_vonMises_center_P99_MPa": 0.08601
+      },
+      "combined_example": {
+        "hub_displacement_mm": [
+          -5.72e-06,
+          0.00034564,
+          0.00147526
+        ],
+        "max_displacement_mm": 0.0023398,
+        "strain_energy_Nmm": 0.00043939,
+        "stress_vonMises_center_P95_MPa": 0.13184,
+        "stress_vonMises_center_max_MPa": 0.24342,
+        "stress_vonMises_center_P99_MPa": 0.20613
+      }
+    },
+    "duration_s": 0.24
+  },
+  {
+    "model": "pukki_V2_10mm_Z.stl",
+    "voxel_size_mm": 0.75,
+    "elements": 1886,
+    "nodes": 3144,
+    "free_DOF": 7404,
+    "clamped_nodes": 676,
+    "loaded_nodes": 48,
+    "material_E_MPa": 2000.0,
+    "material_poisson": 0.35,
+    "assumed_loads": "Fz=+0.5N,Fy=-0.5tan(2deg)N,Mz=+1Nmm",
+    "boundary_condition": "fuselage socket inner radial surface clamped (rigid bond)",
+    "cases": {
+      "rubber_Fz_0p5N": {
+        "hub_displacement_mm": [
+          0.00017045,
+          -0.0,
+          0.00068023
+        ],
+        "max_displacement_mm": 0.0009276,
+        "strain_energy_Nmm": 0.00017006,
+        "stress_vonMises_center_P95_MPa": 0.06757,
+        "stress_vonMises_center_max_MPa": 0.147,
+        "stress_vonMises_center_P99_MPa": 0.1141
+      },
+      "left_Fy_2deg": {
+        "hub_displacement_mm": [
+          0.0,
+          -5.479e-05,
+          0.0
+        ],
+        "max_displacement_mm": 7.22e-05,
+        "strain_energy_Nmm": 4.8e-07,
+        "stress_vonMises_center_P95_MPa": 0.00352,
+        "stress_vonMises_center_max_MPa": 0.00807,
+        "stress_vonMises_center_P99_MPa": 0.00616
+      },
+      "shaft_torsion_Mz_1Nmm": {
+        "hub_displacement_mm": [
+          -0.0,
+          0.00056029,
+          -0.0
+        ],
+        "max_displacement_mm": 0.0009287,
+        "strain_energy_Nmm": 9.754e-05,
+        "stress_vonMises_center_P95_MPa": 0.04916,
+        "stress_vonMises_center_max_MPa": 0.10666,
+        "stress_vonMises_center_P99_MPa": 0.08656
+      },
+      "combined_example": {
+        "hub_displacement_mm": [
+          0.00017045,
+          0.0005055,
+          0.00068023
+        ],
+        "max_displacement_mm": 0.0013408,
+        "strain_energy_Nmm": 0.00025829,
+        "stress_vonMises_center_P95_MPa": 0.08078,
+        "stress_vonMises_center_max_MPa": 0.23164,
+        "stress_vonMises_center_P99_MPa": 0.1387
+      }
+    },
+    "duration_s": 0.59
+  }
+]

@@ -1,0 +1,66 @@
+[
+  {
+    "name": "pukki_plate_5mm_Z",
+    "depth_mm": 5,
+    "design": "plate",
+    "volume_mm3": 189.63,
+    "PLA_g": 0.2351,
+    "PETG_g": 0.2408,
+    "watertight": true,
+    "parts": 1,
+    "z_min": 0.0,
+    "bounding_mm": [
+      19.55,
+      11.7,
+      5.0
+    ]
+  },
+  {
+    "name": "pukki_V2_5mm_Z",
+    "depth_mm": 5,
+    "design": "V2",
+    "volume_mm3": 205.403,
+    "PLA_g": 0.2547,
+    "PETG_g": 0.2609,
+    "watertight": true,
+    "parts": 1,
+    "z_min": 0.0,
+    "bounding_mm": [
+      19.55,
+      11.7,
+      5.35
+    ]
+  },
+  {
+    "name": "pukki_plate_10mm_Z",
+    "depth_mm": 10,
+    "design": "plate",
+    "volume_mm3": 323.09,
+    "PLA_g": 0.4006,
+    "PETG_g": 0.4103,
+    "watertight": true,
+    "parts": 1,
+    "z_min": 0.0,
+    "bounding_mm": [
+      19.55,
+      11.7,
+      10.0
+    ]
+  },
+  {
+    "name": "pukki_V2_10mm_Z",
+    "depth_mm": 10,
+    "design": "V2",
+    "volume_mm3": 343.87,
+    "PLA_g": 0.4264,
+    "PETG_g": 0.4367,
+    "watertight": true,
+    "parts": 1,
+    "z_min": 0.0,
+    "bounding_mm": [
+      19.55,
+      11.7,
+      10.0
+    ]
+  }
+]
