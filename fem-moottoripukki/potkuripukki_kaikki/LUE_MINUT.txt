@@ -1,0 +1,23 @@
+SISÄKUMILENNOKIN POTKURIPUKKI — 1.11.2026
+
+Lähde: potkuripukki.scad (muokattava; valitse variant="plate" / "V" ja insertion=5/10).
+
+Mitat: runkoputki ulko-Ø 10 mm, seinämä 0,8 mm -> sisä-Ø 8,4 mm.
+Pukin holkki liukuu runkoputken PÄÄLLE: sisä-Ø 10,2 mm, seinämä 0,8 mm.
+Potkuriakseli Ø0,8 mm; mallinnettu poraus Ø0,95 mm, erillinen metalliholkki tarpeen kulumisen vuoksi.
+Akseli 12 mm runkoputken keskilinjasta. Akselille mallinnettu 2 asteen sivukallistus.
+
+Suurten päätyvoimien kestävyyttä ei vahvisteta näillä tiedoilla.
+FEM on yksinkertaistettu 2D palkkielementtimenetelmään perustuva laskenta,
+EI koko 3D kappaleen solid-FEM tai tarkka tulostuskerrosten lujuusmalli.
+Palkkien liitokset runkoputkeen oletetaan täysin kiinnitetyiksi;
+liima, holkin taipuminen ja kerrossuunnat eivät sisälly malliin.
+
+STL-tarkastus: 5/10 mm PLATE-mallit ovat vesitiiviitä triangulaatioita.
+V-mallit eivät ole täysin vesitiiviitä (liitosverkon ongelma).
+Tarkista ja korjaa slicerissa ennen tulostamista.
+
+Laskennassa E = 2400 N/mm^2 (oletettu isotrooppinen PLA), 1 N voima
+ja erikseen 1 Nmm momentti. Suunniteltua kestokuormaa ei ole osoitettu.
+
+SVG käyttää CSS-animaatiota (toimii selaimessa), ei ulkoisia riippuvuuksia.
