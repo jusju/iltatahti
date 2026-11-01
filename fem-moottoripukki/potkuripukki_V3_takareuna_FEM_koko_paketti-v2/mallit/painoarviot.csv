@@ -1,0 +1,5 @@
+﻿name,depth_mm,design,volume_mm3,PLA_g,PETG_g,watertight,components,z_min_mm
+pukki_plate_5mm_Z,5,plate,195.004,0.24181,0.24766,True,1,0.0
+pukki_V3_5mm_Z,5,V3,208.608,0.25867,0.26493,True,1,0.0
+pukki_plate_10mm_Z,10,plate,329.604,0.40871,0.4186,True,1,0.0
+pukki_V3_10mm_Z,10,V3,349.71,0.43364,0.44413,True,1,0.0

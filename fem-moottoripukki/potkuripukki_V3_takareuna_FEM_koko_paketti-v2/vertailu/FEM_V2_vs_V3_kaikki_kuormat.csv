@@ -1,0 +1,29 @@
+﻿verkkokoko_mm,pituus_mm,suure,yksikko,vanha_V2,uusi_V3,muutos_prosenttia,elementit_V2,elementit_V3
+0.5,5,"Z-holkin siirtymä, kumiveto",mm,0.00218864,0.0017156,-21.61,3043,3049
+0.5,5,"Y-holkin siirtymä, 2° sivuveto",mm,5.315e-05,6.681e-05,25.7,3043,3049
+0.5,5,"Y-holkin siirtymä, vääntö",mm,0.00051985,0.00066067,27.09,3043,3049
+0.5,5,"Suurin siirtymä, yhdistelmä",mm,0.0033783,0.0031337,-7.24,3043,3049
+0.5,5,"Jännitys, yhdistelmä P95",MPa,0.18255,0.17898,-1.96,3043,3049
+0.5,5,"Jännitys, yhdistelmä maksimi",MPa,0.56279,0.43492,-22.72,3043,3049
+0.5,5,"Muodonmuutosenergia, yhdistelmä",Nmm,0.00066133,0.00055236,-16.48,3043,3049
+0.5,10,"Z-holkin siirtymä, kumiveto",mm,0.00099153,0.00079705,-19.61,5046,5091
+0.5,10,"Y-holkin siirtymä, 2° sivuveto",mm,7.474e-05,9.317e-05,24.66,5046,5091
+0.5,10,"Y-holkin siirtymä, vääntö",mm,0.00080751,0.00107344,32.93,5046,5091
+0.5,10,"Suurin siirtymä, yhdistelmä",mm,0.002138,0.0021682,1.41,5046,5091
+0.5,10,"Jännitys, yhdistelmä P95",MPa,0.11564,0.10825,-6.39,5046,5091
+0.5,10,"Jännitys, yhdistelmä maksimi",MPa,0.48866,0.34413,-29.58,5046,5091
+0.5,10,"Muodonmuutosenergia, yhdistelmä",Nmm,0.00041943,0.00035866,-14.49,5046,5091
+0.75,5,"Z-holkin siirtymä, kumiveto",mm,0.00147526,0.00162979,10.47,1213,1195
+0.75,5,"Y-holkin siirtymä, 2° sivuveto",mm,4.032e-05,5.012e-05,24.31,1213,1195
+0.75,5,"Y-holkin siirtymä, vääntö",mm,0.00038596,0.0005402,39.96,1213,1195
+0.75,5,"Suurin siirtymä, yhdistelmä",mm,0.0023398,0.0027657,18.2,1213,1195
+0.75,5,"Jännitys, yhdistelmä P95",MPa,0.13184,0.13892,5.37,1213,1195
+0.75,5,"Jännitys, yhdistelmä maksimi",MPa,0.24342,0.28958,18.96,1213,1195
+0.75,5,"Muodonmuutosenergia, yhdistelmä",Nmm,0.00043939,0.00049548,12.77,1213,1195
+0.75,10,"Z-holkin siirtymä, kumiveto",mm,0.00068023,0.00063954,-5.98,1886,1890
+0.75,10,"Y-holkin siirtymä, 2° sivuveto",mm,5.479e-05,5.178e-05,-5.49,1886,1890
+0.75,10,"Y-holkin siirtymä, vääntö",mm,0.00056029,0.00055244,-1.4,1886,1890
+0.75,10,"Suurin siirtymä, yhdistelmä",mm,0.0013408,0.0012826,-4.34,1886,1890
+0.75,10,"Jännitys, yhdistelmä P95",MPa,0.08078,0.07758,-3.96,1886,1890
+0.75,10,"Jännitys, yhdistelmä maksimi",MPa,0.23164,0.22197,-4.17,1886,1890
+0.75,10,"Muodonmuutosenergia, yhdistelmä",Nmm,0.00025829,0.00024174,-6.41,1886,1890
